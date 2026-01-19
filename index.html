@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Order System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="landing-container">
+        <div class="landing-header">
+            <h1><i class="fas fa-qrcode"></i> QR Order System</h1>
+            <p>For Hotels & Night Clubs</p>
+        </div>
+        
+        <div class="landing-content">
+            <div class="qr-scanner-section">
+                <h2><i class="fas fa-camera"></i> Scan Your Table QR Code</h2>
+                <div class="qr-display">
+                    <div class="qr-placeholder">
+                        <i class="fas fa-qrcode"></i>
+                        <p>Point your camera at the table QR code</p>
+                    </div>
+                </div>
+                
+                <div class="manual-entry">
+                    <h3>Or Enter Table Number Manually</h3>
+                    <div class="input-group">
+                        <input type="text" id="tableNumber" placeholder="Enter table number">
+                        <button onclick="goToTable()">
+                            <i class="fas fa-arrow-right"></i> Go to Table
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="access-links">
+                <div class="access-card" onclick="window.location.href='admin.html'">
+                    <i class="fas fa-user-shield"></i>
+                    <h3>Admin Dashboard</h3>
+                    <p>Manage menu and settings</p>
+                </div>
+                <div class="access-card" onclick="window.location.href='staff.html'">
+                    <i class="fas fa-concierge-bell"></i>
+                    <h3>Staff Dashboard</h3>
+                    <p>View orders and requests</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Scan the QR code at your table</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Browse menu and place orders</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Call for service or assistance</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <p>Track your order status in real-time</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script>
+        function goToTable() {
+            const tableNumber = document.getElementById('tableNumber').value;
+            if(tableNumber) {
+                window.location.href = `client.html?table=${tableNumber}`;
+            }
+        }
+        
+        // Simulate QR scanning by reading URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableFromQR = urlParams.get('table');
+        if(tableFromQR) {
+            window.location.href = `client.html?table=${tableFromQR}`;
+        }
+    </script>
+</body>
+</html>
