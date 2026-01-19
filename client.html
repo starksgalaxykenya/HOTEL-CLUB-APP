@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Ordering</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="client-container">
+        <!-- Header -->
+        <header class="client-header">
+            <div class="table-info">
+                <h1><i class="fas fa-utensils"></i> Table <span id="tableNumber">--</span></h1>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="connectionStatus">Connected</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="btn-cart" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount">0</span>
+                </button>
+                <button class="btn-call" onclick="openServiceModal()">
+                    <i class="fas fa-bell"></i> Call Service
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="client-main">
+            <!-- Menu Categories -->
+            <nav class="menu-categories" id="categoriesNav">
+                <!-- Categories will be loaded here -->
+            </nav>
+
+            <!-- Menu Items Grid -->
+            <section class="menu-section">
+                <h2 id="currentCategory">All Items</h2>
+                <div class="menu-grid" id="menuItems">
+                    <!-- Menu items will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Order Status Sidebar -->
+            <aside class="order-sidebar">
+                <h3><i class="fas fa-clock"></i> Current Orders</h3>
+                <div class="order-list" id="currentOrders">
+                    <div class="empty-orders">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No active orders</p>
+                    </div>
+                </div>
+                
+                <div class="active-requests">
+                    <h3><i class="fas fa-bell"></i> Active Requests</h3>
+                    <div class="requests-list" id="activeRequests">
+                        <!-- Requests will appear here -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Cart Modal -->
+        <div class="modal" id="cartModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Your Order</h2>
+                    <button class="close-modal" onclick="toggleCart()">&times;</button>
+                </div>
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div class="cart-total">
+                    <h3>Total: $<span id="cartTotal">0.00</span></h3>
+                    <button class="btn-order" onclick="placeOrder()">
+                        <i class="fas fa-paper-plane"></i> Place Order
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Request Modal -->
+        <div class="modal" id="serviceModal">
+            <div class="modal-content wide-modal">
+                <div class="modal-header">
+                    <h2><i class="fas fa-concierge-bell"></i> Request Service</h2>
+                    <button class="close-modal" onclick="closeServiceModal()">&times;</button>
+                </div>
+                <div class="service-options">
+                    <div class="service-card" onclick="requestService('waiter')">
+                        <i class="fas fa-user-tie"></i>
+                        <h3>Call Waiter</h3>
+                        <p>Request assistance</p>
+                    </div>
+                    <div class="service-card" onclick="requestService('waitress')">
+                        <i class="fas fa-user-female"></i>
+                        <h3>Call Waitress</h3>
+                        <p>Request assistance</p>
+                    </div>
+                    <div class="service-card" onclick="requestService('bartender')">
+                        <i class="fas fa-glass-cheers"></i>
+                        <h3>Call Bartender</h3>
+                        <p>Bar service request</p>
+                    </div>
+                    <div class="service-card" onclick="requestService('security')">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Call Security</h3>
+                        <p>Security assistance</p>
+                    </div>
+                    <div class="service-card" onclick="requestService('medical')">
+                        <i class="fas fa-ambulance"></i>
+                        <h3>Medical Emergency</h3>
+                        <p>Urgent medical help</p>
+                    </div>
+                    <div class="service-card" onclick="requestService('pos')">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Request POS/Receipt</h3>
+                        <p>Get your bill</p>
+                    </div>
+                    <div class="service-card" onclick="openSpecialRequest()">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Special Message</h3>
+                        <p>Send custom request</p>
+                    </div>
+                    <div class="service-card" onclick="openStaffCall()">
+                        <i class="fas fa-microphone"></i>
+                        <h3>Call Specific Staff</h3>
+                        <p>Request by name</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Request Modal -->
+        <div class="modal" id="specialRequestModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-envelope"></i> Special Request</h2>
+                    <button class="close-modal" onclick="closeSpecialRequest()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <textarea id="specialMessage" placeholder="Type your special request or message..." rows="4"></textarea>
+                </div>
+                <button class="btn-submit" onclick="sendSpecialRequest()">
+                    <i class="fas fa-paper-plane"></i> Send Request
+                </button>
+            </div>
+        </div>
+
+        <!-- Staff Call Modal -->
+        <div class="modal" id="staffCallModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-microphone"></i> Call Specific Staff</h2>
+                    <button class="close-modal" onclick="closeStaffCall()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="staffName" placeholder="Staff member name">
+                    <select id="staffType">
+                        <option value="waiter">Waiter</option>
+                        <option value="waitress">Waitress</option>
+                        <option value="bartender">Bartender</option>
+                        <option value="manager">Manager</option>
+                        <option value="security">Security</option>
+                    </select>
+                    <textarea id="staffMessage" placeholder="Specific request..." rows="3"></textarea>
+                </div>
+                <button class="btn-submit" onclick="callSpecificStaff()">
+                    <i class="fas fa-bell"></i> Call Staff Member
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/client.js"></script>
+</body>
+</html>
