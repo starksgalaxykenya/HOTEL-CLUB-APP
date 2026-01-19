@@ -1,0 +1,2878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Order System</title>
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        /* Landing Page */
+        .landing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .landing-header {
+            margin-bottom: 3rem;
+        }
+
+        .landing-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .landing-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .role-selection {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .role-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 300px;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .role-card i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .table-input-section {
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .table-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .table-input-group input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        /* Client Interface */
+        .client-header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .table-info h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-cart {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-call {
+            background: #2196F3;
+            color: white;
+        }
+
+        .client-main {
+            display: grid;
+            grid-template-columns: 250px 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .menu-categories {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .category-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-btn:hover {
+            background: #e9ecef;
+        }
+
+        .category-btn.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .category-count {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .menu-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .menu-item {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-image i {
+            font-size: 4rem;
+            color: #666;
+        }
+
+        .item-content {
+            padding: 1.5rem;
+        }
+
+        .item-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .item-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 5px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+
+        .qty-display {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .btn-add {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .order-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .order-list {
+            flex: 1;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-status {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 15px;
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .order-time {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .order-items {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: #444;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .order-total {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .order-eta {
+            color: #666;
+            font-style: italic;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #666;
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .active-requests {
+            border-top: 2px solid #eee;
+            padding-top: 2rem;
+        }
+
+        .requests-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .request-item {
+            background: #fff8e1;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .request-icon {
+            font-size: 1.2rem;
+            color: #ff9800;
+        }
+
+        .request-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            color: #333;
+        }
+
+        .request-status {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .wide-modal {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+        }
+
+        .cart-items {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 1.5rem 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+
+        .cart-item:hover {
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .cart-item-info h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .cart-item-price {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-item-total {
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 1.1rem;
+        }
+
+        .btn-remove {
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #cc0000;
+        }
+
+        .cart-total {
+            text-align: right;
+            padding-top: 1.5rem;
+            border-top: 2px solid #eee;
+        }
+
+        .cart-total h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .btn-order {
+            background: #2196F3;
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px 30px;
+        }
+
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .service-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            background: white;
+            border-color: #2196F3;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        .service-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #2196F3;
+        }
+
+        .service-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .service-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        /* Admin & Waiter Interfaces */
+        .admin-container,
+        .waiter-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-container.active,
+        .waiter-container.active {
+            display: block;
+        }
+
+        .admin-header,
+        .waiter-header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .admin-main {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .menu-items-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .menu-items-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+        }
+
+        .menu-items-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .item-thumbnail {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .status-badge.inactive {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .btn-edit:hover {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-delete {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .btn-delete:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Waiter Specific */
+        .waiter-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .waiter-tab {
+            display: none;
+        }
+
+        .waiter-tab.active {
+            display: block;
+        }
+
+        .orders-grid,
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .waiter-order-card,
+        .waiter-request-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #2196F3;
+        }
+
+        .waiter-order-card:hover,
+        .waiter-request-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .waiter-order-card.pending {
+            border-left-color: #ff9800;
+        }
+
+        .waiter-order-card.preparing {
+            border-left-color: #2196F3;
+        }
+
+        .waiter-order-card.ready {
+            border-left-color: #4CAF50;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-status-badge {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .order-status-badge.pending {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .order-status-badge.preparing {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .order-status-badge.ready {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .order-items-preview {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .order-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .order-total {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .client-main {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .menu-categories {
+                order: 2;
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+            }
+            
+            .category-btn {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+            
+            .menu-section {
+                order: 1;
+            }
+            
+            .order-sidebar {
+                order: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .landing-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .role-selection {
+                flex-direction: column;
+            }
+            
+            .role-card {
+                width: 100%;
+            }
+            
+            .client-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .table-input-group {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+            
+            .service-options {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landingPage" class="landing-container active">
+        <div class="landing-header">
+            <h1><i class="fas fa-qrcode"></i> QR Order System</h1>
+            <p>Smart Ordering for Hotels & Night Clubs</p>
+        </div>
+        
+        <div class="table-input-section">
+            <h2>Enter Your Table Number</h2>
+            <div class="table-input-group">
+                <input type="number" id="tableNumberInput" placeholder="e.g., 12" min="1" max="100">
+                <button class="btn btn-primary" onclick="enterAsClient()">
+                    <i class="fas fa-arrow-right"></i> Enter
+                </button>
+            </div>
+        </div>
+        
+        <div class="role-selection">
+            <div class="role-card" onclick="enterAsWaiter()">
+                <i class="fas fa-concierge-bell"></i>
+                <h3>Waiter Dashboard</h3>
+                <p>Manage orders and requests</p>
+            </div>
+            <div class="role-card" onclick="enterAsAdmin()">
+                <i class="fas fa-user-shield"></i>
+                <h3>Admin Panel</h3>
+                <p>Manage menu and settings</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Interface -->
+    <div id="clientPage" class="app-container">
+        <header class="client-header">
+            <div class="table-info">
+                <h1><i class="fas fa-chair"></i> Table <span id="currentTable">--</span></h1>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="connectionStatus">Connected</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-cart" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    Cart (<span id="cartCount">0</span>)
+                </button>
+                <button class="btn btn-call" onclick="openServiceModal()">
+                    <i class="fas fa-bell"></i> Call Service
+                </button>
+            </div>
+        </header>
+
+        <main class="client-main">
+            <nav class="menu-categories" id="categoriesNav">
+                <!-- Categories will be loaded here -->
+            </nav>
+
+            <section class="menu-section">
+                <h2 id="currentCategory">All Items</h2>
+                <div class="menu-grid" id="menuItems">
+                    <!-- Menu items will be loaded here -->
+                </div>
+            </section>
+
+            <aside class="order-sidebar">
+                <div class="order-section">
+                    <h3><i class="fas fa-clock"></i> Current Orders</h3>
+                    <div class="order-list" id="currentOrders">
+                        <div class="empty-orders">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>No active orders</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="active-requests">
+                    <h3><i class="fas fa-bell"></i> Active Requests</h3>
+                    <div class="requests-list" id="activeRequests">
+                        <!-- Requests will appear here -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Waiter Interface -->
+    <div id="waiterPage" class="app-container waiter-container">
+        <header class="waiter-header">
+            <div class="header-left">
+                <h1><i class="fas fa-concierge-bell"></i> Waiter Dashboard</h1>
+                <div class="waiter-info">
+                    <span id="waiterName">Waiter</span>
+                    <span class="status-badge active">Online</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" onclick="showNotificationPanel()">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationCount">0</span>
+                </button>
+                <button class="btn" onclick="goToLanding()" style="background: #666; color: white;">
+                    <i class="fas fa-sign-out-alt"></i> Exit
+                </button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <nav class="waiter-tabs">
+                <button class="tab-btn active" onclick="showWaiterTab('orders')">
+                    <i class="fas fa-clipboard-list"></i> Orders
+                </button>
+                <button class="tab-btn" onclick="showWaiterTab('requests')">
+                    <i class="fas fa-bell"></i> Requests
+                </button>
+                <button class="tab-btn" onclick="showWaiterTab('tables')">
+                    <i class="fas fa-chair"></i> Tables
+                </button>
+            </nav>
+
+            <section id="ordersTab" class="waiter-tab active">
+                <div class="section-header">
+                    <h2>Active Orders</h2>
+                    <select id="orderFilter" onchange="filterOrders()">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                    </select>
+                </div>
+                <div class="orders-grid" id="waiterOrdersGrid">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </section>
+
+            <section id="requestsTab" class="waiter-tab">
+                <div class="section-header">
+                    <h2>Service Requests</h2>
+                    <select id="requestFilter" onchange="filterRequests()">
+                        <option value="all">All Requests</option>
+                        <option value="waiter">Waiter</option>
+                        <option value="waitress">Waitress</option>
+                        <option value="bartender">Bartender</option>
+                        <option value="security">Security</option>
+                        <option value="medical">Medical</option>
+                        <option value="pos">POS</option>
+                    </select>
+                </div>
+                <div class="requests-grid" id="waiterRequestsGrid">
+                    <!-- Requests will be loaded here -->
+                </div>
+            </section>
+
+            <section id="tablesTab" class="waiter-tab">
+                <div class="section-header">
+                    <h2>Table Status</h2>
+                </div>
+                <div class="tables-grid" id="tablesGrid">
+                    <!-- Tables will be loaded here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Admin Interface -->
+    <div id="adminPage" class="app-container admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-crown"></i> Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="showAdminSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('menu')">
+                    <i class="fas fa-utensils"></i> Menu
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('orders')">
+                    <i class="fas fa-clipboard-list"></i> Orders
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('requests')">
+                    <i class="fas fa-bell"></i> Requests
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('tables')">
+                    <i class="fas fa-chair"></i> Tables
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('staff')">
+                    <i class="fas fa-users"></i> Staff
+                </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('settings')">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer" style="padding: 1.5rem;">
+                <button class="btn btn-primary" onclick="goToLanding()" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> Exit Admin
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 id="adminSectionTitle">Dashboard</h1>
+                <div class="admin-info">
+                    <span>Admin User</span>
+                    <i class="fas fa-user-circle" style="font-size: 2rem; color: #666;"></i>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalOrdersCount">0</h3>
+                            <p>Total Orders Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pendingOrdersCount">0</h3>
+                            <p>Pending Orders</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="activeRequestsCount">0</h3>
+                            <p>Active Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chair"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="activeTablesCount">0</h3>
+                            <p>Active Tables</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                    <div class="recent-orders">
+                        <h3>Recent Orders</h3>
+                        <div id="recentOrdersList" style="background: white; border-radius: 15px; padding: 1rem; margin-top: 1rem;">
+                            <!-- Recent orders -->
+                        </div>
+                    </div>
+                    <div class="popular-items">
+                        <h3>Popular Items</h3>
+                        <div id="popularItemsList" style="background: white; border-radius: 15px; padding: 1rem; margin-top: 1rem;">
+                            <!-- Popular items -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Menu Section -->
+            <section id="menuSection" class="content-section">
+                <div class="section-header">
+                    <h2>Menu Management</h2>
+                    <button class="btn btn-primary" onclick="openAddItemModal()">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+                <div class="menu-items-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminMenuItems">
+                            <!-- Menu items will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="ordersSection" class="content-section">
+                <div class="section-header">
+                    <h2>All Orders</h2>
+                    <select id="adminOrderFilter" onchange="filterAdminOrders()">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="orders-grid" id="adminOrdersGrid">
+                    <!-- All orders will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Add more sections for requests, tables, staff, settings -->
+        </main>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shopping-cart"></i> Your Order</h2>
+                <button class="close-modal" onclick="toggleCart()">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items -->
+            </div>
+            <div class="cart-total">
+                <h3>Total: $<span id="cartTotal">0.00</span></h3>
+                <button class="btn btn-order" onclick="placeOrder()">
+                    <i class="fas fa-paper-plane"></i> Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Request Modal -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content wide-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-concierge-bell"></i> Request Service</h2>
+                <button class="close-modal" onclick="closeServiceModal()">&times;</button>
+            </div>
+            <div class="service-options">
+                <div class="service-card" onclick="requestService('waiter')">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>Call Waiter</h3>
+                    <p>Request assistance</p>
+                </div>
+                <div class="service-card" onclick="requestService('waitress')">
+                    <i class="fas fa-user-female"></i>
+                    <h3>Call Waitress</h3>
+                    <p>Request assistance</p>
+                </div>
+                <div class="service-card" onclick="requestService('bartender')">
+                    <i class="fas fa-glass-cheers"></i>
+                    <h3>Call Bartender</h3>
+                    <p>Bar service request</p>
+                </div>
+                <div class="service-card" onclick="requestService('security')">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Call Security</h3>
+                    <p>Security assistance</p>
+                </div>
+                <div class="service-card" onclick="requestService('medical')">
+                    <i class="fas fa-ambulance"></i>
+                    <h3>Medical Emergency</h3>
+                    <p>Urgent medical help</p>
+                </div>
+                <div class="service-card" onclick="requestService('pos')">
+                    <i class="fas fa-receipt"></i>
+                    <h3>Request POS/Receipt</h3>
+                    <p>Get your bill</p>
+                </div>
+                <div class="service-card" onclick="openSpecialRequest()">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Special Message</h3>
+                    <p>Send custom request</p>
+                </div>
+                <div class="service-card" onclick="openStaffCall()">
+                    <i class="fas fa-microphone"></i>
+                    <h3>Call Specific Staff</h3>
+                    <p>Request by name</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Special Request Modal -->
+    <div class="modal" id="specialRequestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-envelope"></i> Special Request</h2>
+                <button class="close-modal" onclick="closeSpecialRequest()">&times;</button>
+            </div>
+            <div class="form-group">
+                <textarea id="specialMessage" placeholder="Type your special request or message..." rows="4"></textarea>
+            </div>
+            <button class="btn btn-submit" onclick="sendSpecialRequest()">
+                <i class="fas fa-paper-plane"></i> Send Request
+            </button>
+        </div>
+    </div>
+
+    <!-- Staff Call Modal -->
+    <div class="modal" id="staffCallModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-microphone"></i> Call Specific Staff</h2>
+                <button class="close-modal" onclick="closeStaffCall()">&times;</button>
+            </div>
+            <div class="form-group">
+                <input type="text" id="staffName" placeholder="Staff member name">
+                <select id="staffType">
+                    <option value="waiter">Waiter</option>
+                    <option value="waitress">Waitress</option>
+                    <option value="bartender">Bartender</option>
+                    <option value="manager">Manager</option>
+                    <option value="security">Security</option>
+                </select>
+                <textarea id="staffMessage" placeholder="Specific request..." rows="3"></textarea>
+            </div>
+            <button class="btn btn-submit" onclick="callSpecificStaff()">
+                <i class="fas fa-bell"></i> Call Staff Member
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Menu Item</h2>
+                <button class="close-modal" onclick="closeAddItemModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" required>
+            </div>
+            <div class="form-group">
+                <label for="itemDescription">Description</label>
+                <textarea id="itemDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="itemCategory">Category</label>
+                <input type="text" id="itemCategory" placeholder="e.g., Appetizers, Drinks, Main Course" required>
+            </div>
+            <div class="form-group">
+                <label for="itemPrice">Price ($)</label>
+                <input type="number" id="itemPrice" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="itemImage">Image URL</label>
+                <input type="text" id="itemImage" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="itemAvailable" checked> Available
+                </label>
+            </div>
+            <button class="btn btn-submit" onclick="addMenuItem()">
+                <i class="fas fa-plus"></i> Add Item
+            </button>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal" id="orderDetailModal">
+        <div class="modal-content wide-modal">
+            <div class="modal-header">
+                <h2>Order Details - Table <span id="modalTableNumber"></span></h2>
+                <button class="close-modal" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <div class="order-items-list" id="modalOrderItems" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Order items -->
+                </div>
+                <div class="order-controls">
+                    <h3>Update Status</h3>
+                    <div class="form-group">
+                        <select id="updateOrderStatus">
+                            <option value="pending">Pending</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="ready">Ready</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Time (minutes)</label>
+                        <input type="number" id="estimatedTime" min="1" max="120" value="15">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateOrderStatus()" style="width: 100%;">
+                        <i class="fas fa-check"></i> Update Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Detail Modal -->
+    <div class="modal" id="requestDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalRequestTitle">Request Details</h2>
+                <button class="close-modal" onclick="closeRequestModal()">&times;</button>
+            </div>
+            <div class="request-info" id="modalRequestInfo">
+                <!-- Request details -->
+            </div>
+            <div class="request-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="acceptRequest()" style="flex: 1;">
+                    <i class="fas fa-check"></i> Accept
+                </button>
+                <button class="btn" onclick="completeRequest()" style="flex: 1; background: #4CAF50; color: white;">
+                    <i class="fas fa-check-double"></i> Complete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn3dGe2dhgfrqwYENgWA1biEW8ngXv068",
+            authDomain: "office-manager-pro-1b6ae.firebaseapp.com",
+            projectId: "office-manager-pro-1b6ae",
+            storageBucket: "office-manager-pro-1b6ae.firebasestorage.app",
+            messagingSenderId: "202156442292",
+            appId: "1:202156442292:web:664d17e9c8e75535168de1",
+            measurementId: "G-BTY9GY3HBX"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Collections
+        const menuRef = db.collection("menu");
+        const ordersRef = db.collection("orders");
+        const requestsRef = db.collection("requests");
+        const tablesRef = db.collection("tables");
+
+        // Global Variables
+        let currentTable = null;
+        let cart = [];
+        let totalAmount = 0;
+        let menuItems = [];
+        let categories = [];
+        let currentCategory = 'all';
+        let currentOrderId = null;
+        let currentRequestId = null;
+
+        // App Navigation
+        function goToLanding() {
+            hideAllPages();
+            document.getElementById('landingPage').classList.add('active');
+        }
+
+        function enterAsClient() {
+            const tableNumber = document.getElementById('tableNumberInput').value;
+            if (!tableNumber || tableNumber < 1) {
+                showNotification('Please enter a valid table number', 'error');
+                return;
+            }
+            
+            currentTable = tableNumber;
+            hideAllPages();
+            document.getElementById('clientPage').classList.add('active');
+            document.getElementById('currentTable').textContent = tableNumber;
+            
+            // Initialize client app
+            initializeClientApp();
+        }
+
+        function enterAsWaiter() {
+            hideAllPages();
+            document.getElementById('waiterPage').classList.add('active');
+            initializeWaiterApp();
+        }
+
+        function enterAsAdmin() {
+            hideAllPages();
+            document.getElementById('adminPage').classList.add('active');
+            initializeAdminApp();
+        }
+
+        function hideAllPages() {
+            document.getElementById('landingPage').classList.remove('active');
+            document.getElementById('clientPage').classList.remove('active');
+            document.getElementById('waiterPage').classList.remove('active');
+            document.getElementById('adminPage').classList.remove('active');
+        }
+
+        // Client App Functions
+        function initializeClientApp() {
+            loadMenu();
+            setupRealtimeListeners();
+            updateCartDisplay();
+        }
+
+        async function loadMenu() {
+            try {
+                // Load menu items
+                const menuSnapshot = await menuRef.where('available', '==', true).get();
+                menuItems = menuSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Extract unique categories
+                const categorySet = new Set();
+                menuItems.forEach(item => {
+                    if (item.category) categorySet.add(item.category);
+                });
+                categories = Array.from(categorySet);
+                
+                renderCategories();
+                renderMenuItems();
+            } catch (error) {
+                console.error('Error loading menu:', error);
+                showNotification('Failed to load menu', 'error');
+            }
+        }
+
+        function renderCategories() {
+            const categoriesNav = document.getElementById('categoriesNav');
+            categoriesNav.innerHTML = '';
+            
+            // All items button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'category-btn active';
+            allBtn.innerHTML = `
+                <span>All Items</span>
+                <span class="category-count">${menuItems.length}</span>
+            `;
+            allBtn.onclick = () => filterByCategory('all');
+            categoriesNav.appendChild(allBtn);
+            
+            // Category buttons
+            categories.forEach(category => {
+                const count = menuItems.filter(item => item.category === category).length;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.innerHTML = `
+                    <span>${category}</span>
+                    <span class="category-count">${count}</span>
+                `;
+                btn.onclick = () => filterByCategory(category);
+                categoriesNav.appendChild(btn);
+            });
+        }
+
+        function renderMenuItems(items = null) {
+            const itemsToRender = items || menuItems;
+            const menuGrid = document.getElementById('menuItems');
+            menuGrid.innerHTML = '';
+            
+            if (itemsToRender.length === 0) {
+                menuGrid.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #666; grid-column: 1 / -1;">
+                        <i class="fas fa-utensils" style="font-size: 4rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <h3>No items found</h3>
+                        <p>Try selecting a different category</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            itemsToRender.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = `
+                    <div class="item-image">
+                        ${item.image ? 
+                            `<img src="${item.image}" alt="${item.name}" onerror="this.src=''">` : 
+                            `<i class="fas fa-utensils"></i>`
+                        }
+                    </div>
+                    <div class="item-content">
+                        <h3>${item.name}</h3>
+                        <p class="item-description">${item.description || 'No description'}</p>
+                        <div class="item-footer">
+                            <div class="item-price">$${item.price.toFixed(2)}</div>
+                            <div class="item-controls">
+                                <div class="quantity-controls">
+                                    <button class="qty-btn minus" onclick="decreaseQuantity('${item.id}')">-</button>
+                                    <span class="qty-display" id="qty-${item.id}">0</span>
+                                    <button class="qty-btn plus" onclick="increaseQuantity('${item.id}')">+</button>
+                                </div>
+                                <button class="btn-add" onclick="addToCart('${item.id}')">
+                                    <i class="fas fa-cart-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                menuGrid.appendChild(menuItem);
+            });
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update active category button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Filter items
+            let filteredItems;
+            if (category === 'all') {
+                filteredItems = menuItems;
+                document.getElementById('currentCategory').textContent = 'All Items';
+                document.querySelector('.category-btn:first-child').classList.add('active');
+            } else {
+                filteredItems = menuItems.filter(item => item.category === category);
+                document.getElementById('currentCategory').textContent = category;
+                Array.from(document.querySelectorAll('.category-btn')).find(btn => 
+                    btn.querySelector('span:first-child').textContent === category
+                ).classList.add('active');
+            }
+            
+            renderMenuItems(filteredItems);
+        }
+
+        function addToCart(itemId) {
+            const item = menuItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            const quantity = parseInt(document.getElementById(`qty-${itemId}`).textContent);
+            if (quantity === 0) {
+                showNotification('Please select quantity first', 'error');
+                return;
+            }
+            
+            const existingItem = cart.find(i => i.id === itemId);
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    ...item,
+                    quantity: quantity
+                });
+            }
+            
+            // Reset quantity display
+            document.getElementById(`qty-${itemId}`).textContent = '0';
+            
+            updateCartDisplay();
+            showNotification(`${quantity} ${item.name}(s) added to cart!`);
+        }
+
+        function increaseQuantity(itemId) {
+            const qtyDisplay = document.getElementById(`qty-${itemId}`);
+            let currentQty = parseInt(qtyDisplay.textContent) || 0;
+            qtyDisplay.textContent = currentQty + 1;
+        }
+
+        function decreaseQuantity(itemId) {
+            const qtyDisplay = document.getElementById(`qty-${itemId}`);
+            let currentQty = parseInt(qtyDisplay.textContent) || 0;
+            if (currentQty > 0) {
+                qtyDisplay.textContent = currentQty - 1;
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = cartCount;
+            
+            totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cartTotal').textContent = totalAmount.toFixed(2);
+            
+            renderCartItems();
+        }
+
+        function renderCartItems() {
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-shopping-cart" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                        <p>Your cart is empty</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <p class="cart-item-price">$${item.price.toFixed(2)} × ${item.quantity}</p>
+                    </div>
+                    <div class="cart-item-controls">
+                        <span class="cart-item-total">$${(item.price * item.quantity).toFixed(2)}</span>
+                        <button class="btn-remove" onclick="removeFromCart('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCartDisplay();
+        }
+
+        async function placeOrder() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+
+            const order = {
+                tableNumber: currentTable,
+                items: cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    total: item.price * item.quantity
+                })),
+                total: totalAmount,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                estimatedTime: 15
+            };
+
+            try {
+                await ordersRef.add(order);
+                
+                // Clear cart
+                cart = [];
+                updateCartDisplay();
+                toggleCart();
+                
+                showNotification('Order placed successfully!');
+            } catch (error) {
+                console.error('Error placing order:', error);
+                showNotification('Failed to place order', 'error');
+            }
+        }
+
+        // Service Requests
+        async function requestService(serviceType) {
+            const request = {
+                tableNumber: currentTable,
+                serviceType: serviceType,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                assignedTo: null
+            };
+
+            try {
+                await requestsRef.add(request);
+                showNotification('Service requested!');
+                closeServiceModal();
+            } catch (error) {
+                console.error('Error requesting service:', error);
+                showNotification('Failed to request service', 'error');
+            }
+        }
+
+        async function sendSpecialRequest() {
+            const message = document.getElementById('specialMessage').value.trim();
+            if (!message) {
+                showNotification('Please enter a message', 'error');
+                return;
+            }
+
+            const request = {
+                tableNumber: currentTable,
+                serviceType: 'special',
+                message: message,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await requestsRef.add(request);
+                showNotification('Special request sent!');
+                closeSpecialRequest();
+            } catch (error) {
+                console.error('Error sending special request:', error);
+                showNotification('Failed to send request', 'error');
+            }
+        }
+
+        async function callSpecificStaff() {
+            const name = document.getElementById('staffName').value.trim();
+            const type = document.getElementById('staffType').value;
+            const message = document.getElementById('staffMessage').value.trim();
+
+            if (!name) {
+                showNotification('Please enter staff name', 'error');
+                return;
+            }
+
+            const request = {
+                tableNumber: currentTable,
+                serviceType: 'specific_staff',
+                staffName: name,
+                staffType: type,
+                message: message,
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await requestsRef.add(request);
+                showNotification(`Calling ${name}...`);
+                closeStaffCall();
+            } catch (error) {
+                console.error('Error calling staff:', error);
+                showNotification('Failed to call staff', 'error');
+            }
+        }
+
+        // Real-time Listeners
+        function setupRealtimeListeners() {
+            // Listen for order updates
+            ordersRef
+                .where('tableNumber', '==', currentTable)
+                .where('status', 'in', ['pending', 'preparing', 'ready'])
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    renderCurrentOrders(snapshot.docs);
+                });
+
+            // Listen for request updates
+            requestsRef
+                .where('tableNumber', '==', currentTable)
+                .where('status', 'in', ['pending', 'in_progress'])
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    renderActiveRequests(snapshot.docs);
+                });
+        }
+
+        function renderCurrentOrders(orderDocs) {
+            const ordersList = document.getElementById('currentOrders');
+            
+            if (orderDocs.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No active orders</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersList.innerHTML = '';
+            
+            orderDocs.forEach(doc => {
+                const order = doc.data();
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                const itemsList = order.items.map(item => 
+                    `${item.name} × ${item.quantity}`
+                ).join(', ');
+                
+                const statusColors = {
+                    pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
+                    preparing: { bg: '#e3f2fd', color: '#2196F3', text: 'Preparing' },
+                    ready: { bg: '#e8f5e8', color: '#4CAF50', text: 'Ready' }
+                };
+                
+                const status = statusColors[order.status] || statusColors.pending;
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
+                            ${status.text}
+                        </span>
+                        <span class="order-time">${formatTime(order.createdAt)}</span>
+                    </div>
+                    <p class="order-items">${itemsList}</p>
+                    <div class="order-footer">
+                        <span class="order-total">$${order.total.toFixed(2)}</span>
+                        ${order.estimatedTime ? 
+                          `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
+                    </div>
+                `;
+                ordersList.appendChild(orderCard);
+            });
+        }
+
+        function renderActiveRequests(requestDocs) {
+            const requestsList = document.getElementById('activeRequests');
+            
+            if (requestDocs.length === 0) {
+                requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No active requests</p>';
+                return;
+            }
+
+            requestsList.innerHTML = '';
+            
+            requestDocs.forEach(doc => {
+                const request = doc.data();
+                const requestElement = document.createElement('div');
+                requestElement.className = 'request-item';
+                
+                const icons = {
+                    waiter: 'fa-user-tie',
+                    waitress: 'fa-user-female',
+                    bartender: 'fa-glass-cheers',
+                    security: 'fa-shield-alt',
+                    medical: 'fa-ambulance',
+                    pos: 'fa-receipt',
+                    special: 'fa-envelope',
+                    specific_staff: 'fa-microphone'
+                };
+                
+                requestElement.innerHTML = `
+                    <div class="request-icon">
+                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}"></i>
+                    </div>
+                    <div class="request-info">
+                        <h4>${getServiceTypeName(request.serviceType)}</h4>
+                        <p>Status: <span class="request-status">${request.status === 'in_progress' ? 'In Progress' : 'Pending'}</span></p>
+                        ${request.message ? `<p style="font-size: 0.9rem; color: #666; margin-top: 5px;">${request.message}</p>` : ''}
+                    </div>
+                `;
+                requestsList.appendChild(requestElement);
+            });
+        }
+
+        function getServiceTypeName(serviceType) {
+            const names = {
+                waiter: 'Waiter Request',
+                waitress: 'Waitress Request',
+                bartender: 'Bartender Request',
+                security: 'Security Request',
+                medical: 'Medical Emergency',
+                pos: 'POS/Receipt Request',
+                special: 'Special Request',
+                specific_staff: 'Staff Call'
+            };
+            return names[serviceType] || serviceType;
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Modal Controls
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('active');
+        }
+
+        function openServiceModal() {
+            document.getElementById('serviceModal').classList.add('active');
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.remove('active');
+        }
+
+        function openSpecialRequest() {
+            closeServiceModal();
+            document.getElementById('specialRequestModal').classList.add('active');
+        }
+
+        function closeSpecialRequest() {
+            document.getElementById('specialRequestModal').classList.remove('active');
+            document.getElementById('specialMessage').value = '';
+        }
+
+        function openStaffCall() {
+            closeServiceModal();
+            document.getElementById('staffCallModal').classList.add('active');
+        }
+
+        function closeStaffCall() {
+            document.getElementById('staffCallModal').classList.remove('active');
+            document.getElementById('staffName').value = '';
+            document.getElementById('staffMessage').value = '';
+        }
+
+        // Waiter App Functions
+        function initializeWaiterApp() {
+            loadWaiterOrders();
+            loadWaiterRequests();
+            loadTables();
+            setupWaiterRealtimeListeners();
+        }
+
+        async function loadWaiterOrders() {
+            try {
+                const ordersSnapshot = await ordersRef
+                    .where('status', 'in', ['pending', 'preparing', 'ready'])
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                renderWaiterOrders(ordersSnapshot.docs);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function renderWaiterOrders(orderDocs) {
+            const ordersGrid = document.getElementById('waiterOrdersGrid');
+            ordersGrid.innerHTML = '';
+            
+            orderDocs.forEach(doc => {
+                const order = doc.data();
+                const orderCard = document.createElement('div');
+                orderCard.className = `waiter-order-card ${order.status}`;
+                orderCard.onclick = () => openOrderDetail(doc.id, order);
+                
+                const itemsPreview = order.items?.slice(0, 2).map(item => 
+                    `${item.name} × ${item.quantity}`
+                ).join(', ');
+                
+                const moreItems = order.items?.length > 2 ? 
+                    ` +${order.items.length - 2} more items` : '';
+                
+                orderCard.innerHTML = `
+                    <div class="order-card-header">
+                        <h3>Table ${order.tableNumber}</h3>
+                        <span class="order-status-badge ${order.status}">
+                            ${order.status}
+                        </span>
+                    </div>
+                    <div class="order-items-preview">
+                        ${itemsPreview}${moreItems}
+                    </div>
+                    <div class="order-card-footer">
+                        <div class="order-total">$${order.total?.toFixed(2) || '0.00'}</div>
+                        <div class="order-time">
+                            ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : 'Just now'}
+                        </div>
+                    </div>
+                `;
+                ordersGrid.appendChild(orderCard);
+            });
+        }
+
+        async function loadWaiterRequests() {
+            try {
+                const requestsSnapshot = await requestsRef
+                    .where('status', 'in', ['pending', 'in_progress'])
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                renderWaiterRequests(requestsSnapshot.docs);
+            } catch (error) {
+                console.error('Error loading requests:', error);
+            }
+        }
+
+        function renderWaiterRequests(requestDocs) {
+            const requestsGrid = document.getElementById('waiterRequestsGrid');
+            requestsGrid.innerHTML = '';
+            
+            requestDocs.forEach(doc => {
+                const request = doc.data();
+                const requestCard = document.createElement('div');
+                requestCard.className = 'waiter-request-card';
+                requestCard.onclick = () => openRequestDetail(doc.id, request);
+                
+                const icons = {
+                    waiter: 'fa-user-tie',
+                    waitress: 'fa-user-female',
+                    bartender: 'fa-glass-cheers',
+                    security: 'fa-shield-alt',
+                    medical: 'fa-ambulance',
+                    pos: 'fa-receipt',
+                    special: 'fa-envelope',
+                    specific_staff: 'fa-microphone'
+                };
+                
+                requestCard.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}" style="font-size: 1.5rem; color: #2196F3;"></i>
+                        <div>
+                            <h3 style="margin: 0;">${getServiceTypeName(request.serviceType)}</h3>
+                            <p style="margin: 5px 0 0; color: #666; font-size: 0.9rem;">
+                                Table ${request.tableNumber}
+                            </p>
+                        </div>
+                    </div>
+                    ${request.message ? `<p style="color: #666; font-size: 0.95rem;">${request.message}</p>` : ''}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                        <span class="order-status-badge ${request.status}">
+                            ${request.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                        </span>
+                        <span style="font-size: 0.85rem; color: #666;">
+                            ${request.createdAt ? formatTimeAgo(request.createdAt.toDate()) : 'Just now'}
+                        </span>
+                    </div>
+                `;
+                requestsGrid.appendChild(requestCard);
+            });
+            
+            // Update notification count
+            const pendingCount = requestDocs.filter(doc => 
+                doc.data().status === 'pending'
+            ).length;
+            document.getElementById('notificationCount').textContent = pendingCount;
+        }
+
+        async function loadTables() {
+            // This would normally load from Firestore
+            // For now, we'll simulate with active orders
+            const ordersSnapshot = await ordersRef
+                .where('status', 'in', ['pending', 'preparing', 'ready'])
+                .get();
+            
+            const tablesSet = new Set();
+            ordersSnapshot.docs.forEach(doc => {
+                tablesSet.add(doc.data().tableNumber);
+            });
+            
+            const tablesGrid = document.getElementById('tablesGrid');
+            tablesGrid.innerHTML = '';
+            
+            Array.from(tablesSet).forEach(tableNumber => {
+                const tableCard = document.createElement('div');
+                tableCard.className = 'waiter-order-card';
+                tableCard.innerHTML = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-chair" style="font-size: 3rem; color: #2196F3; margin-bottom: 1rem;"></i>
+                        <h2 style="margin: 0;">Table ${tableNumber}</h2>
+                        <p style="color: #666; margin-top: 0.5rem;">Active</p>
+                    </div>
+                `;
+                tablesGrid.appendChild(tableCard);
+            });
+        }
+
+        function openOrderDetail(orderId, order) {
+            currentOrderId = orderId;
+            
+            document.getElementById('modalTableNumber').textContent = order.tableNumber;
+            document.getElementById('updateOrderStatus').value = order.status;
+            document.getElementById('estimatedTime').value = order.estimatedTime || 15;
+            
+            const orderItems = document.getElementById('modalOrderItems');
+            orderItems.innerHTML = '';
+            
+            if (order.items) {
+                order.items.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.style.cssText = `
+                        display: flex; justify-content: space-between; align-items: center;
+                        padding: 1rem; background: #f8f9fa; margin-bottom: 0.5rem; border-radius: 8px;
+                    `;
+                    itemElement.innerHTML = `
+                        <div>
+                            <h4 style="margin: 0;">${item.name}</h4>
+                            <p style="margin: 5px 0 0; color: #666;">$${item.price.toFixed(2)} × ${item.quantity}</p>
+                        </div>
+                        <div style="font-weight: bold; color: #2196F3;">
+                            $${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                    `;
+                    orderItems.appendChild(itemElement);
+                });
+            }
+            
+            document.getElementById('orderDetailModal').classList.add('active');
+        }
+
+        async function updateOrderStatus() {
+            const newStatus = document.getElementById('updateOrderStatus').value;
+            const estimatedTime = document.getElementById('estimatedTime').value;
+            
+            try {
+                await ordersRef.doc(currentOrderId).update({
+                    status: newStatus,
+                    estimatedTime: parseInt(estimatedTime),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Order status updated!');
+                closeOrderModal();
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showNotification('Failed to update order', 'error');
+            }
+        }
+
+        function openRequestDetail(requestId, request) {
+            currentRequestId = requestId;
+            
+            document.getElementById('modalRequestTitle').textContent = 
+                getServiceTypeName(request.serviceType);
+            
+            const requestInfo = document.getElementById('modalRequestInfo');
+            requestInfo.innerHTML = `
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                    <p><strong>Table:</strong> ${request.tableNumber}</p>
+                    <p><strong>Time:</strong> ${request.createdAt ? request.createdAt.toDate().toLocaleTimeString() : ''}</p>
+                    <p><strong>Status:</strong> <span class="order-status-badge ${request.status}">
+                        ${request.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                    </span></p>
+                    ${request.message ? `<p><strong>Message:</strong><br>${request.message}</p>` : ''}
+                    ${request.staffName ? `<p><strong>Staff:</strong> ${request.staffName}</p>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('requestDetailModal').classList.add('active');
+        }
+
+        async function acceptRequest() {
+            try {
+                await requestsRef.doc(currentRequestId).update({
+                    status: 'in_progress',
+                    assignedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Request accepted!');
+                closeRequestModal();
+            } catch (error) {
+                console.error('Error accepting request:', error);
+                showNotification('Failed to accept request', 'error');
+            }
+        }
+
+        async function completeRequest() {
+            try {
+                await requestsRef.doc(currentRequestId).update({
+                    status: 'completed',
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Request completed!');
+                closeRequestModal();
+            } catch (error) {
+                console.error('Error completing request:', error);
+                showNotification('Failed to complete request', 'error');
+            }
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderDetailModal').classList.remove('active');
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestDetailModal').classList.remove('active');
+        }
+
+        function showWaiterTab(tabId) {
+            document.querySelectorAll('.waiter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`${tabId}Tab`).classList.add('active');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function setupWaiterRealtimeListeners() {
+            ordersRef
+                .where('status', 'in', ['pending', 'preparing', 'ready'])
+                .onSnapshot(snapshot => {
+                    renderWaiterOrders(snapshot.docs);
+                });
+            
+            requestsRef
+                .where('status', 'in', ['pending', 'in_progress'])
+                .onSnapshot(snapshot => {
+                    renderWaiterRequests(snapshot.docs);
+                });
+        }
+
+        // Admin App Functions
+        function initializeAdminApp() {
+            loadAdminStats();
+            loadAdminMenu();
+            loadAdminOrders();
+        }
+
+        async function loadAdminStats() {
+            try {
+                // Get today's date
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Total orders today
+                const ordersToday = await ordersRef
+                    .where('createdAt', '>=', today)
+                    .get();
+                document.getElementById('totalOrdersCount').textContent = ordersToday.size;
+                
+                // Pending orders
+                const pendingOrders = ordersToday.docs.filter(doc => 
+                    doc.data().status === 'pending'
+                ).length;
+                document.getElementById('pendingOrdersCount').textContent = pendingOrders;
+                
+                // Active requests
+                const activeRequests = await requestsRef
+                    .where('status', 'in', ['pending', 'in_progress'])
+                    .get();
+                document.getElementById('activeRequestsCount').textContent = activeRequests.size;
+                
+                // Active tables (from orders)
+                const tableSet = new Set();
+                ordersToday.docs.forEach(doc => {
+                    if (doc.data().status !== 'completed') {
+                        tableSet.add(doc.data().tableNumber);
+                    }
+                });
+                document.getElementById('activeTablesCount').textContent = tableSet.size;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadAdminMenu() {
+            try {
+                const menuSnapshot = await menuRef.get();
+                const menuTable = document.getElementById('adminMenuItems');
+                menuTable.innerHTML = '';
+                
+                menuSnapshot.docs.forEach(doc => {
+                    const item = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            ${item.image ? 
+                                `<img src="${item.image}" alt="${item.name}" class="item-thumbnail">` : 
+                                `<i class="fas fa-utensils"></i>`
+                            }
+                        </td>
+                        <td>${item.name}</td>
+                        <td>${item.description || ''}</td>
+                        <td>${item.category || ''}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>
+                            <span class="status-badge ${item.available ? 'active' : 'inactive'}">
+                                ${item.available ? 'Available' : 'Unavailable'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="editMenuItem('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteMenuItem('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    menuTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        }
+
+        async function loadAdminOrders() {
+            try {
+                const ordersSnapshot = await ordersRef
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const ordersGrid = document.getElementById('adminOrdersGrid');
+                ordersGrid.innerHTML = '';
+                
+                ordersSnapshot.docs.forEach(doc => {
+                    const order = doc.data();
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'waiter-order-card';
+                    
+                    const itemsPreview = order.items?.slice(0, 2).map(item => 
+                        `${item.name} × ${item.quantity}`
+                    ).join(', ');
+                    
+                    orderCard.innerHTML = `
+                        <div class="order-card-header">
+                            <h3>Table ${order.tableNumber}</h3>
+                            <span class="order-status-badge ${order.status}">
+                                ${order.status}
+                            </span>
+                        </div>
+                        <div class="order-items-preview">
+                            ${itemsPreview}
+                        </div>
+                        <div class="order-card-footer">
+                            <div class="order-total">$${order.total?.toFixed(2) || '0.00'}</div>
+                            <div class="order-time">
+                                ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : ''}
+                            </div>
+                        </div>
+                    `;
+                    ordersGrid.appendChild(orderCard);
+                });
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function openAddItemModal() {
+            document.getElementById('addItemModal').classList.add('active');
+        }
+
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.remove('active');
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('itemCategory').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('itemAvailable').checked = true;
+        }
+
+        async function addMenuItem() {
+            const item = {
+                name: document.getElementById('itemName').value,
+                description: document.getElementById('itemDescription').value,
+                category: document.getElementById('itemCategory').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                image: document.getElementById('itemImage').value || null,
+                available: document.getElementById('itemAvailable').checked,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!item.name || !item.category || !item.price) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                await menuRef.add(item);
+                showNotification('Menu item added successfully!');
+                closeAddItemModal();
+                loadAdminMenu();
+            } catch (error) {
+                console.error('Error adding menu item:', error);
+                showNotification('Failed to add menu item', 'error');
+            }
+        }
+
+        function editMenuItem(itemId) {
+            // Implementation for editing menu items
+            showNotification('Edit feature coming soon!');
+        }
+
+        async function deleteMenuItem(itemId) {
+            if (confirm('Are you sure you want to delete this menu item?')) {
+                try {
+                    await menuRef.doc(itemId).delete();
+                    showNotification('Menu item deleted!');
+                    loadAdminMenu();
+                } catch (error) {
+                    console.error('Error deleting menu item:', error);
+                    showNotification('Failed to delete menu item', 'error');
+                }
+            }
+        }
+
+        function showAdminSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionId}Section`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                menu: 'Menu Management',
+                orders: 'Order Management',
+                requests: 'Service Requests',
+                tables: 'Table Management',
+                staff: 'Staff Management',
+                settings: 'Settings'
+            };
+            document.getElementById('adminSectionTitle').textContent = titles[sectionId];
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hr ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays} days ago`;
+        }
+
+        function showNotificationPanel() {
+            // Implementation for notification panel
+            showNotification('Notification panel coming soon!');
+        }
+
+        function filterOrders() {
+            // Implementation for filtering orders
+            showNotification('Filtering orders...');
+        }
+
+        function filterRequests() {
+            // Implementation for filtering requests
+            showNotification('Filtering requests...');
+        }
+
+        function filterAdminOrders() {
+            // Implementation for filtering admin orders
+            showNotification('Filtering admin orders...');
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters for table number (for QR codes)
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableFromQR = urlParams.get('table');
+            const roleFromQR = urlParams.get('role');
+            
+            if (tableFromQR) {
+                document.getElementById('tableNumberInput').value = tableFromQR;
+                enterAsClient();
+            } else if (roleFromQR === 'waiter') {
+                enterAsWaiter();
+            } else if (roleFromQR === 'admin') {
+                enterAsAdmin();
+            }
+            
+            // Add CSS for notifications
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Close modals on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
