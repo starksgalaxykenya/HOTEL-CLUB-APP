@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="staff-container">
+        <!-- Header -->
+        <header class="staff-header">
+            <div class="header-left">
+                <h1><i class="fas fa-concierge-bell"></i> Staff Dashboard</h1>
+                <div class="staff-info">
+                    <span id="staffRole">Waiter</span>
+                    <span class="status-badge active">Online</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <button class="btn-logout" onclick="staffLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="staff-main">
+            <!-- Tabs -->
+            <nav class="staff-tabs">
+                <button class="tab-btn active" onclick="showStaffTab('orders')">
+                    <i class="fas fa-clipboard-list"></i> Orders
+                </button>
+                <button class="tab-btn" onclick="showStaffTab('requests')">
+                    <i class="fas fa-bell"></i> Requests
+                </button>
+                <button class="tab-btn" onclick="showStaffTab('tables')">
+                    <i class="fas fa-chair"></i> Tables
+                </button>
+                <button class="tab-btn" onclick="showStaffTab('assigned')">
+                    <i class="fas fa-tasks"></i> My Tasks
+                </button>
+            </nav>
+
+            <!-- Orders Tab -->
+            <section id="ordersTab" class="staff-tab active">
+                <div class="orders-controls">
+                    <select id="orderStatusFilter" onchange="filterStaffOrders()">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready to Serve</option>
+                        <option value="served">Served</option>
+                    </select>
+                    <button class="btn-refresh" onclick="loadStaffOrders()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="orders-grid" id="staffOrdersGrid">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Requests Tab -->
+            <section id="requestsTab" class="staff-tab">
+                <div class="requests-controls">
+                    <select id="requestTypeFilter" onchange="filterStaffRequests()">
+                        <option value="all">All Requests</option>
+                        <option value="waiter">Waiter</option>
+                        <option value="waitress">Waitress</option>
+                        <option value="bartender">Bartender</option>
+                        <option value="security">Security</option>
+                        <option value="medical">Medical</option>
+                        <option value="pos">POS/Receipt</option>
+                        <option value="special">Special Request</option>
+                    </select>
+                </div>
+                <div class="requests-grid" id="staffRequestsGrid">
+                    <!-- Requests will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Other tabs content would go here -->
+        </main>
+
+        <!-- Order Detail Modal -->
+        <div class="modal" id="orderDetailModal">
+            <div class="modal-content wide-modal">
+                <div class="modal-header">
+                    <h2>Order Details - Table <span id="modalTableNumber"></span></h2>
+                    <button class="close-modal" onclick="closeOrderModal()">&times;</button>
+                </div>
+                <div class="order-details">
+                    <div class="order-items" id="modalOrderItems">
+                        <!-- Order items will be loaded here -->
+                    </div>
+                    <div class="order-controls">
+                        <h3>Update Status</h3>
+                        <select id="updateOrderStatus">
+                            <option value="pending">Pending</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="ready">Ready to Serve</option>
+                            <option value="served">Served</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <div class="estimated-time">
+                            <label>Estimated Time (minutes):</label>
+                            <input type="number" id="estimatedTime" min="1" max="120" value="15">
+                        </div>
+                        <button class="btn-update" onclick="updateOrderStatus()">
+                            <i class="fas fa-check"></i> Update Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Detail Modal -->
+        <div class="modal" id="requestDetailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalRequestTitle"></h2>
+                    <button class="close-modal" onclick="closeRequestModal()">&times;</button>
+                </div>
+                <div class="request-details">
+                    <p id="modalRequestDescription"></p>
+                    <div class="request-info">
+                        <p><strong>Table:</strong> <span id="modalRequestTable"></span></p>
+                        <p><strong>Time:</strong> <span id="modalRequestTime"></span></p>
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-accept" onclick="acceptRequest()">
+                        <i class="fas fa-check"></i> Accept Request
+                    </button>
+                    <button class="btn-complete" onclick="completeRequest()">
+                        <i class="fas fa-check-double"></i> Mark Complete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/staff.js"></script>
+</body>
+</html>
