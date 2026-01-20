@@ -27,6 +27,34 @@
             display: block;
         }
 
+        /* Institution Header */
+        .institution-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .institution-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .institution-tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
         /* Landing Page */
         .landing-container {
             max-width: 1200px;
@@ -37,9 +65,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
             color: white;
             text-align: center;
+        }
+
+        .landing-content {
+            margin-top: 80px;
+            max-width: 600px;
+            width: 100%;
         }
 
         .landing-header {
@@ -89,6 +123,33 @@
             margin-bottom: 0.5rem;
         }
 
+        .qr-scanner-section {
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .qr-scanner-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        #qr-reader {
+            width: 100% !important;
+            border: 3px solid white !important;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+        }
+
+        .scanner-instructions {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
         .table-input-section {
             margin: 2rem 0;
             background: rgba(255, 255, 255, 0.1);
@@ -126,12 +187,12 @@
         }
 
         .btn-primary {
-            background: #4CAF50;
+            background: var(--accent-color, #4CAF50);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #45a049;
+            background: var(--accent-hover, #45a049);
             transform: translateY(-2px);
         }
 
@@ -143,6 +204,7 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 80px;
         }
 
         .table-info {
@@ -168,7 +230,7 @@
         .status-dot {
             width: 10px;
             height: 10px;
-            background: #4CAF50;
+            background: var(--accent-color, #4CAF50);
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
@@ -189,7 +251,12 @@
         }
 
         .btn-call {
-            background: #2196F3;
+            background: var(--primary-color, #2196F3);
+            color: white;
+        }
+
+        .btn-public {
+            background: var(--secondary-color, #764ba2);
             color: white;
         }
 
@@ -230,7 +297,7 @@
         }
 
         .category-btn.active {
-            background: #2196F3;
+            background: var(--primary-color, #2196F3);
             color: white;
         }
 
@@ -307,6 +374,19 @@
             line-height: 1.4;
         }
 
+        .item-specification {
+            margin: 1rem 0;
+        }
+
+        .item-specification input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
         .item-footer {
             display: flex;
             justify-content: space-between;
@@ -316,7 +396,7 @@
         .item-price {
             font-size: 1.4rem;
             font-weight: bold;
-            color: #2196F3;
+            color: var(--primary-color, #2196F3);
         }
 
         .item-controls {
@@ -361,7 +441,7 @@
         }
 
         .btn-add {
-            background: #4CAF50;
+            background: var(--accent-color, #4CAF50);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -372,7 +452,7 @@
         }
 
         .btn-add:hover {
-            background: #45a049;
+            background: var(--accent-hover, #45a049);
             transform: translateY(-2px);
         }
 
@@ -398,7 +478,7 @@
             padding: 1rem;
             margin-bottom: 10px;
             border-radius: 10px;
-            border-left: 4px solid #2196F3;
+            border-left: 4px solid var(--primary-color, #2196F3);
         }
 
         .order-header {
@@ -414,7 +494,7 @@
             padding: 3px 10px;
             border-radius: 15px;
             background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
+            color: var(--primary-color, #2196F3);
         }
 
         .order-time {
@@ -492,6 +572,71 @@
         .request-status {
             font-size: 0.85rem;
             color: #666;
+        }
+
+        /* Public Requests Section */
+        .public-requests {
+            border-top: 2px solid #eee;
+            padding-top: 2rem;
+            margin-top: 1rem;
+        }
+
+        .public-request-card {
+            background: #e8f5e9;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color, #4CAF50);
+        }
+
+        .public-request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .public-request-from {
+            font-weight: bold;
+            color: var(--primary-color, #2196F3);
+        }
+
+        .public-request-type {
+            background: var(--primary-color, #2196F3);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .public-request-message {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .public-request-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-accept {
+            background: var(--accent-color, #4CAF50);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-ignore {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
         }
 
         /* Modal Styles */
@@ -597,6 +742,12 @@
             color: #333;
         }
 
+        .cart-item-spec {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
         .cart-item-price {
             color: #666;
             font-size: 0.95rem;
@@ -610,7 +761,7 @@
 
         .cart-item-total {
             font-weight: bold;
-            color: #2196F3;
+            color: var(--primary-color, #2196F3);
             font-size: 1.1rem;
         }
 
@@ -645,7 +796,7 @@
         }
 
         .btn-order {
-            background: #2196F3;
+            background: var(--primary-color, #2196F3);
             color: white;
             font-size: 1.1rem;
             padding: 15px 30px;
@@ -671,14 +822,14 @@
         .service-card:hover {
             transform: translateY(-5px);
             background: white;
-            border-color: #2196F3;
+            border-color: var(--primary-color, #2196F3);
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.1);
         }
 
         .service-card i {
             font-size: 2.5rem;
             margin-bottom: 1rem;
-            color: #2196F3;
+            color: var(--primary-color, #2196F3);
         }
 
         .service-card h3 {
@@ -718,32 +869,235 @@
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #2196F3;
+            border-color: var(--primary-color, #2196F3);
         }
 
         .btn-submit {
             width: 100%;
             padding: 15px;
-            background: #4CAF50;
+            background: var(--accent-color, #4CAF50);
             color: white;
             font-size: 1.1rem;
             margin-top: 1rem;
         }
 
-        /* Admin & Waiter Interfaces */
-        .admin-container,
+        /* Waiter Dashboard (Separate System) */
+        .waiter-landing {
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .waiter-login {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            color: white;
+            text-align: center;
+        }
+
+        .waiter-login h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .waiter-login p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
         .waiter-container {
             display: none;
             min-height: 100vh;
         }
 
-        .admin-container.active,
         .waiter-container.active {
             display: block;
         }
 
-        .admin-header,
         .waiter-header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 80px;
+        }
+
+        .waiter-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color, #2196F3);
+            color: white;
+        }
+
+        .waiter-tab {
+            display: none;
+        }
+
+        .waiter-tab.active {
+            display: block;
+        }
+
+        .waiter-main {
+            padding: 2rem;
+        }
+
+        .orders-grid,
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .waiter-order-card,
+        .waiter-request-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color, #2196F3);
+        }
+
+        .waiter-order-card:hover,
+        .waiter-request-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .waiter-order-card.pending {
+            border-left-color: #ff9800;
+        }
+
+        .waiter-order-card.preparing {
+            border-left-color: var(--primary-color, #2196F3);
+        }
+
+        .waiter-order-card.ready {
+            border-left-color: var(--accent-color, #4CAF50);
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-status-badge {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .order-status-badge.pending {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .order-status-badge.preparing {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color, #2196F3);
+        }
+
+        .order-status-badge.ready {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--accent-color, #4CAF50);
+        }
+
+        .order-items-preview {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .order-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .order-total {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        /* Admin Dashboard (Separate System) */
+        .admin-landing {
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .admin-login {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            color: white;
+            text-align: center;
+        }
+
+        .admin-login h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .admin-login p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-container.active {
+            display: block;
+        }
+
+        .admin-header {
             background: white;
             padding: 1rem 2rem;
             display: flex;
@@ -762,6 +1116,7 @@
             color: white;
             padding: 2rem 0;
             overflow-y: auto;
+            margin-top: 80px;
         }
 
         .sidebar-header {
@@ -801,7 +1156,7 @@
         }
 
         .nav-item.active {
-            background: #3498db;
+            background: var(--primary-color, #3498db);
             color: white;
         }
 
@@ -836,7 +1191,7 @@
         .stat-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2));
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -908,7 +1263,7 @@
 
         .status-badge.active {
             background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
+            color: var(--accent-color, #4CAF50);
         }
 
         .status-badge.inactive {
@@ -932,11 +1287,11 @@
 
         .btn-edit {
             background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
+            color: var(--primary-color, #2196F3);
         }
 
         .btn-edit:hover {
-            background: #2196F3;
+            background: var(--primary-color, #2196F3);
             color: white;
         }
 
@@ -950,127 +1305,11 @@
             color: white;
         }
 
-        /* Waiter Specific */
-        .waiter-tabs {
-            display: flex;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 1rem;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .tab-btn.active {
-            background: #2196F3;
-            color: white;
-        }
-
-        .waiter-tab {
-            display: none;
-        }
-
-        .waiter-tab.active {
-            display: block;
-        }
-
-        .orders-grid,
-        .requests-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .waiter-order-card,
-        .waiter-request-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 4px solid #2196F3;
-        }
-
-        .waiter-order-card:hover,
-        .waiter-request-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-
-        .waiter-order-card.pending {
-            border-left-color: #ff9800;
-        }
-
-        .waiter-order-card.preparing {
-            border-left-color: #2196F3;
-        }
-
-        .waiter-order-card.ready {
-            border-left-color: #4CAF50;
-        }
-
-        .order-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .order-status-badge {
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .order-status-badge.pending {
-            background: rgba(255, 152, 0, 0.1);
-            color: #ff9800;
-        }
-
-        .order-status-badge.preparing {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
-        }
-
-        .order-status-badge.ready {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-        }
-
-        .order-items-preview {
-            color: #666;
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
-        }
-
-        .order-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .order-total {
-            font-weight: bold;
-            color: #333;
-            font-size: 1.1rem;
+        /* Waiter Response Modal */
+        .waiter-response-form {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #eee;
         }
 
         /* Notifications */
@@ -1078,7 +1317,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #4CAF50;
+            background: var(--accent-color, #4CAF50);
             color: white;
             padding: 15px 25px;
             border-radius: 10px;
@@ -1145,6 +1384,14 @@
         }
 
         @media (max-width: 768px) {
+            .institution-name {
+                font-size: 1.5rem;
+            }
+            
+            .institution-tagline {
+                font-size: 0.9rem;
+            }
+            
             .landing-header h1 {
                 font-size: 2.5rem;
             }
@@ -1185,38 +1432,102 @@
             .admin-main {
                 margin-left: 0;
             }
+            
+            .waiter-tabs {
+                flex-direction: column;
+            }
+            
+            .orders-grid,
+            .requests-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .client-main {
+                padding: 10px;
+            }
+            
+            .order-sidebar {
+                order: 3;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .institution-header {
+                padding: 0.5rem 1rem;
+            }
+            
+            .institution-name {
+                font-size: 1.2rem;
+            }
+            
+            .institution-tagline {
+                font-size: 0.8rem;
+            }
+            
+            .landing-header h1 {
+                font-size: 2rem;
+            }
+            
+            .role-card {
+                padding: 1.5rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .client-header {
+                padding: 1rem;
+            }
+            
+            .waiter-header,
+            .admin-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
+    <!-- Institution Header -->
+    <div class="institution-header" id="institutionHeader">
+        <div class="institution-name" id="institutionName">QR Order System</div>
+        <div class="institution-tagline" id="institutionTagline">Smart Ordering for Hotels & Night Clubs</div>
+    </div>
+
     <!-- Landing Page -->
     <div id="landingPage" class="landing-container active">
-        <div class="landing-header">
-            <h1><i class="fas fa-qrcode"></i> QR Order System</h1>
-            <p>Smart Ordering for Hotels & Night Clubs</p>
-        </div>
-        
-        <div class="table-input-section">
-            <h2>Enter Your Table Number</h2>
-            <div class="table-input-group">
-                <input type="number" id="tableNumberInput" placeholder="e.g., 12" min="1" max="100">
-                <button class="btn btn-primary" onclick="enterAsClient()">
-                    <i class="fas fa-arrow-right"></i> Enter
-                </button>
+        <div class="landing-content">
+            <div class="landing-header">
+                <h1><i class="fas fa-qrcode"></i> Welcome</h1>
+                <p>Scan QR code or enter table number to begin</p>
             </div>
-        </div>
-        
-        <div class="role-selection">
-            <div class="role-card" onclick="enterAsWaiter()">
-                <i class="fas fa-concierge-bell"></i>
-                <h3>Waiter Dashboard</h3>
-                <p>Manage orders and requests</p>
+            
+            <div class="qr-scanner-section">
+                <h2>Scan QR Code</h2>
+                <div class="qr-scanner-container">
+                    <div id="qr-reader"></div>
+                    <p class="scanner-instructions">Point camera at table QR code</p>
+                </div>
             </div>
-            <div class="role-card" onclick="enterAsAdmin()">
-                <i class="fas fa-user-shield"></i>
-                <h3>Admin Panel</h3>
-                <p>Manage menu and settings</p>
+            
+            <div class="table-input-section">
+                <h2>Or Enter Your Table Number</h2>
+                <div class="table-input-group">
+                    <input type="number" id="tableNumberInput" placeholder="e.g., 12" min="1" max="100">
+                    <button class="btn btn-primary" onclick="enterAsClient()">
+                        <i class="fas fa-arrow-right"></i> Enter
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1238,6 +1549,9 @@
                 </button>
                 <button class="btn btn-call" onclick="openServiceModal()">
                     <i class="fas fa-bell"></i> Call Service
+                </button>
+                <button class="btn btn-public" onclick="openPublicRequestModal()">
+                    <i class="fas fa-bullhorn"></i> Public Request
                 </button>
             </div>
         </header>
@@ -1271,17 +1585,39 @@
                         <!-- Requests will appear here -->
                     </div>
                 </div>
+
+                <div class="public-requests">
+                    <h3><i class="fas fa-users"></i> Public Requests</h3>
+                    <div class="requests-list" id="publicRequests">
+                        <!-- Public requests will appear here -->
+                    </div>
+                </div>
             </aside>
         </main>
     </div>
 
+    <!-- Waiter Landing (Separate System) -->
+    <div id="waiterLanding" class="waiter-landing">
+        <div class="waiter-login">
+            <h1><i class="fas fa-concierge-bell"></i> Waiter Login</h1>
+            <p>Enter credentials to access waiter dashboard</p>
+            <div class="form-group">
+                <input type="text" id="waiterUsername" placeholder="Username" style="margin-bottom: 1rem;">
+                <input type="password" id="waiterPassword" placeholder="Password">
+            </div>
+            <button class="btn btn-primary" onclick="loginAsWaiter()" style="width: 100%;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+    </div>
+
     <!-- Waiter Interface -->
-    <div id="waiterPage" class="app-container waiter-container">
+    <div id="waiterPage" class="waiter-container">
         <header class="waiter-header">
             <div class="header-left">
                 <h1><i class="fas fa-concierge-bell"></i> Waiter Dashboard</h1>
                 <div class="waiter-info">
-                    <span id="waiterName">Waiter</span>
+                    <span id="currentWaiterName">Waiter</span>
                     <span class="status-badge active">Online</span>
                 </div>
             </div>
@@ -1290,13 +1626,13 @@
                     <i class="fas fa-bell"></i>
                     <span id="notificationCount">0</span>
                 </button>
-                <button class="btn" onclick="goToLanding()" style="background: #666; color: white;">
-                    <i class="fas fa-sign-out-alt"></i> Exit
+                <button class="btn" onclick="logoutWaiter()" style="background: #666; color: white;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </header>
 
-        <main class="admin-main">
+        <main class="waiter-main">
             <nav class="waiter-tabs">
                 <button class="tab-btn active" onclick="showWaiterTab('orders')">
                     <i class="fas fa-clipboard-list"></i> Orders
@@ -1329,12 +1665,8 @@
                     <h2>Service Requests</h2>
                     <select id="requestFilter" onchange="filterRequests()">
                         <option value="all">All Requests</option>
-                        <option value="waiter">Waiter</option>
-                        <option value="waitress">Waitress</option>
-                        <option value="bartender">Bartender</option>
-                        <option value="security">Security</option>
-                        <option value="medical">Medical</option>
-                        <option value="pos">POS</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
                     </select>
                 </div>
                 <div class="requests-grid" id="waiterRequestsGrid">
@@ -1353,8 +1685,23 @@
         </main>
     </div>
 
+    <!-- Admin Landing (Separate System) -->
+    <div id="adminLanding" class="admin-landing">
+        <div class="admin-login">
+            <h1><i class="fas fa-user-shield"></i> Admin Login</h1>
+            <p>Enter credentials to access admin panel</p>
+            <div class="form-group">
+                <input type="text" id="adminUsername" placeholder="Username" style="margin-bottom: 1rem;">
+                <input type="password" id="adminPassword" placeholder="Password">
+            </div>
+            <button class="btn btn-primary" onclick="loginAsAdmin()" style="width: 100%;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+    </div>
+
     <!-- Admin Interface -->
-    <div id="adminPage" class="app-container admin-container">
+    <div id="adminPage" class="admin-container">
         <aside class="admin-sidebar">
             <div class="sidebar-header">
                 <h2><i class="fas fa-crown"></i> Admin Panel</h2>
@@ -1378,13 +1725,16 @@
                 <a href="#" class="nav-item" onclick="showAdminSection('staff')">
                     <i class="fas fa-users"></i> Staff
                 </a>
+                <a href="#" class="nav-item" onclick="showAdminSection('institution')">
+                    <i class="fas fa-building"></i> Institution
+                </a>
                 <a href="#" class="nav-item" onclick="showAdminSection('settings')">
                     <i class="fas fa-cog"></i> Settings
                 </a>
             </nav>
             <div class="sidebar-footer" style="padding: 1.5rem;">
-                <button class="btn btn-primary" onclick="goToLanding()" style="width: 100%;">
-                    <i class="fas fa-sign-out-alt"></i> Exit Admin
+                <button class="btn btn-primary" onclick="logoutAdmin()" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </aside>
@@ -1500,7 +1850,73 @@
                 </div>
             </section>
 
-            <!-- Add more sections for requests, tables, staff, settings -->
+            <!-- Staff Section -->
+            <section id="staffSection" class="content-section">
+                <div class="section-header">
+                    <h2>Staff Management</h2>
+                    <button class="btn btn-primary" onclick="openAddStaffModal()">
+                        <i class="fas fa-plus"></i> Add Staff
+                    </button>
+                </div>
+                <div class="menu-items-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Username</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStaffList">
+                            <!-- Staff list will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Institution Section -->
+            <section id="institutionSection" class="content-section">
+                <div class="section-header">
+                    <h2>Institution Settings</h2>
+                </div>
+                <div class="form-group">
+                    <label for="institutionNameInput">Institution Name</label>
+                    <input type="text" id="institutionNameInput" placeholder="Enter institution name">
+                </div>
+                <div class="form-group">
+                    <label for="institutionTaglineInput">Tagline</label>
+                    <input type="text" id="institutionTaglineInput" placeholder="Enter tagline">
+                </div>
+                <button class="btn btn-primary" onclick="saveInstitutionSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </section>
+
+            <!-- Theme Settings Section -->
+            <section id="settingsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Theme Settings</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                    <div class="form-group">
+                        <label for="primaryColor">Primary Color</label>
+                        <input type="color" id="primaryColor" value="#667eea">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondaryColor">Secondary Color</label>
+                        <input type="color" id="secondaryColor" value="#764ba2">
+                    </div>
+                    <div class="form-group">
+                        <label for="accentColor">Accent Color</label>
+                        <input type="color" id="accentColor" value="#4CAF50">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveThemeSettings()" style="margin-top: 2rem;">
+                    <i class="fas fa-palette"></i> Apply Theme
+                </button>
+            </section>
         </main>
     </div>
 
@@ -1615,6 +2031,43 @@
         </div>
     </div>
 
+    <!-- Public Request Modal -->
+    <div class="modal" id="publicRequestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-bullhorn"></i> Make Public Request</h2>
+                <button class="close-modal" onclick="closePublicRequestModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="publicRequestType">Request Type</label>
+                <select id="publicRequestType">
+                    <option value="game">Join a Game</option>
+                    <option value="chat">Invite to Chat</option>
+                    <option value="drink">Share a Drink</option>
+                    <option value="meal">Share a Meal</option>
+                    <option value="custom">Custom Message</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="publicRequestGame">Game Type (if applicable)</label>
+                <select id="publicRequestGame">
+                    <option value="pool">Pool</option>
+                    <option value="darts">Darts</option>
+                    <option value="chess">Chess</option>
+                    <option value="cards">Cards</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="publicRequestMessage">Message</label>
+                <textarea id="publicRequestMessage" placeholder="Type your request message..." rows="4"></textarea>
+            </div>
+            <button class="btn btn-submit" onclick="sendPublicRequest()">
+                <i class="fas fa-bullhorn"></i> Broadcast Request
+            </button>
+        </div>
+    </div>
+
     <!-- Add Item Modal -->
     <div class="modal" id="addItemModal">
         <div class="modal-content">
@@ -1653,6 +2106,41 @@
         </div>
     </div>
 
+    <!-- Add Staff Modal -->
+    <div class="modal" id="addStaffModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Staff Member</h2>
+                <button class="close-modal" onclick="closeAddStaffModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="staffNameInput">Full Name</label>
+                <input type="text" id="staffNameInput" required>
+            </div>
+            <div class="form-group">
+                <label for="staffRole">Role</label>
+                <select id="staffRole">
+                    <option value="waiter">Waiter</option>
+                    <option value="waitress">Waitress</option>
+                    <option value="bartender">Bartender</option>
+                    <option value="manager">Manager</option>
+                    <option value="security">Security</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="staffUsername">Username</label>
+                <input type="text" id="staffUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="staffPassword">Password</label>
+                <input type="password" id="staffPassword" required>
+            </div>
+            <button class="btn btn-submit" onclick="addStaffMember()">
+                <i class="fas fa-plus"></i> Add Staff
+            </button>
+        </div>
+    </div>
+
     <!-- Order Detail Modal -->
     <div class="modal" id="orderDetailModal">
         <div class="modal-content wide-modal">
@@ -1686,7 +2174,7 @@
         </div>
     </div>
 
-    <!-- Request Detail Modal -->
+    <!-- Request Detail Modal (Waiter) -->
     <div class="modal" id="requestDetailModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1696,13 +2184,26 @@
             <div class="request-info" id="modalRequestInfo">
                 <!-- Request details -->
             </div>
-            <div class="request-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <button class="btn btn-primary" onclick="acceptRequest()" style="flex: 1;">
-                    <i class="fas fa-check"></i> Accept
-                </button>
-                <button class="btn" onclick="completeRequest()" style="flex: 1; background: #4CAF50; color: white;">
-                    <i class="fas fa-check-double"></i> Complete
-                </button>
+            <div class="waiter-response-form">
+                <h3>Respond to Request</h3>
+                <div class="form-group">
+                    <label for="waiterNameSelect">Your Name</label>
+                    <select id="waiterNameSelect">
+                        <!-- Staff names will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="waiterResponse">Response Message (optional)</label>
+                    <textarea id="waiterResponse" placeholder="Type your response message..." rows="3"></textarea>
+                </div>
+                <div class="request-actions" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="acceptRequest()" style="flex: 1;">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
+                    <button class="btn" onclick="completeRequest()" style="flex: 1; background: var(--accent-color, #4CAF50); color: white;">
+                        <i class="fas fa-check-double"></i> Complete
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1730,7 +2231,9 @@
         const menuRef = db.collection("menu");
         const ordersRef = db.collection("orders");
         const requestsRef = db.collection("requests");
-        const tablesRef = db.collection("tables");
+        const staffRef = db.collection("staff");
+        const publicRequestsRef = db.collection("publicRequests");
+        const settingsRef = db.collection("settings");
 
         // Global Variables
         let currentTable = null;
@@ -1741,6 +2244,42 @@
         let currentCategory = 'all';
         let currentOrderId = null;
         let currentRequestId = null;
+        let currentStaffList = [];
+        let institutionSettings = null;
+        let themeSettings = null;
+
+        // Initialize QR Scanner
+        function initializeQRScanner() {
+            const html5QrCode = new Html5Qrcode("qr-reader");
+            
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                // Parse table number from QR code
+                const tableNumber = decodedText.split('table=')[1];
+                if (tableNumber) {
+                    document.getElementById('tableNumberInput').value = tableNumber;
+                    showNotification('Table number scanned successfully!');
+                    
+                    // Stop scanning
+                    html5QrCode.stop().then(() => {
+                        html5QrCode.clear();
+                    }).catch(err => {
+                        console.error("Failed to stop scanner", err);
+                    });
+                }
+            };
+            
+            const config = { fps: 10, qrbox: 250 };
+            
+            // Start scanner
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeSuccessCallback
+            ).catch(err => {
+                console.error("Unable to start QR scanner", err);
+                showNotification('Unable to access camera. Please enter table manually.', 'error');
+            });
+        }
 
         // App Navigation
         function goToLanding() {
@@ -1764,16 +2303,47 @@
             initializeClientApp();
         }
 
-        function enterAsWaiter() {
-            hideAllPages();
-            document.getElementById('waiterPage').classList.add('active');
-            initializeWaiterApp();
+        function loginAsWaiter() {
+            const username = document.getElementById('waiterUsername').value;
+            const password = document.getElementById('waiterPassword').value;
+            
+            // Simple authentication (in production, use proper auth)
+            if (username && password) {
+                hideAllPages();
+                document.getElementById('waiterPage').classList.add('active');
+                document.getElementById('currentWaiterName').textContent = username;
+                initializeWaiterApp();
+            } else {
+                showNotification('Please enter username and password', 'error');
+            }
         }
 
-        function enterAsAdmin() {
+        function loginAsAdmin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            // Simple authentication (admin:admin)
+            if (username === 'admin' && password === 'admin') {
+                hideAllPages();
+                document.getElementById('adminPage').classList.add('active');
+                initializeAdminApp();
+            } else {
+                showNotification('Invalid admin credentials', 'error');
+            }
+        }
+
+        function logoutWaiter() {
             hideAllPages();
-            document.getElementById('adminPage').classList.add('active');
-            initializeAdminApp();
+            document.getElementById('waiterLanding').style.display = 'flex';
+            document.getElementById('waiterUsername').value = '';
+            document.getElementById('waiterPassword').value = '';
+        }
+
+        function logoutAdmin() {
+            hideAllPages();
+            document.getElementById('adminLanding').style.display = 'flex';
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
         }
 
         function hideAllPages() {
@@ -1781,11 +2351,60 @@
             document.getElementById('clientPage').classList.remove('active');
             document.getElementById('waiterPage').classList.remove('active');
             document.getElementById('adminPage').classList.remove('active');
+            document.getElementById('waiterLanding').style.display = 'none';
+            document.getElementById('adminLanding').style.display = 'none';
+        }
+
+        // Load institution settings
+        async function loadInstitutionSettings() {
+            try {
+                const settingsDoc = await settingsRef.doc('institution').get();
+                if (settingsDoc.exists) {
+                    institutionSettings = settingsDoc.data();
+                    document.getElementById('institutionName').textContent = institutionSettings.name || 'QR Order System';
+                    document.getElementById('institutionTagline').textContent = institutionSettings.tagline || 'Smart Ordering for Hotels & Night Clubs';
+                    
+                    if (document.getElementById('institutionNameInput')) {
+                        document.getElementById('institutionNameInput').value = institutionSettings.name || '';
+                        document.getElementById('institutionTaglineInput').value = institutionSettings.tagline || '';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading institution settings:', error);
+            }
+        }
+
+        // Load theme settings
+        async function loadThemeSettings() {
+            try {
+                const themeDoc = await settingsRef.doc('theme').get();
+                if (themeDoc.exists) {
+                    themeSettings = themeDoc.data();
+                    applyTheme(themeSettings);
+                    
+                    if (document.getElementById('primaryColor')) {
+                        document.getElementById('primaryColor').value = themeSettings.primary || '#667eea';
+                        document.getElementById('secondaryColor').value = themeSettings.secondary || '#764ba2';
+                        document.getElementById('accentColor').value = themeSettings.accent || '#4CAF50';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading theme settings:', error);
+            }
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.style.setProperty('--primary-color', theme.primary || '#667eea');
+            document.documentElement.style.setProperty('--secondary-color', theme.secondary || '#764ba2');
+            document.documentElement.style.setProperty('--accent-color', theme.accent || '#4CAF50');
+            document.documentElement.style.setProperty('--accent-hover', theme.accentHover || '#45a049');
         }
 
         // Client App Functions
         function initializeClientApp() {
             loadMenu();
+            loadInstitutionSettings();
+            loadThemeSettings();
             setupRealtimeListeners();
             updateCartDisplay();
         }
@@ -1871,6 +2490,10 @@
                     <div class="item-content">
                         <h3>${item.name}</h3>
                         <p class="item-description">${item.description || 'No description'}</p>
+                        <div class="item-specification">
+                            <label>Special Instructions:</label>
+                            <input type="text" id="spec-${item.id}" placeholder="e.g., no onions, extra sauce...">
+                        </div>
                         <div class="item-footer">
                             <div class="item-price">$${item.price.toFixed(2)}</div>
                             <div class="item-controls">
@@ -1925,19 +2548,23 @@
                 return;
             }
             
-            const existingItem = cart.find(i => i.id === itemId);
+            const specification = document.getElementById(`spec-${itemId}`).value;
+            
+            const existingItem = cart.find(i => i.id === itemId && i.specification === specification);
             
             if (existingItem) {
                 existingItem.quantity += quantity;
             } else {
                 cart.push({
                     ...item,
-                    quantity: quantity
+                    quantity: quantity,
+                    specification: specification
                 });
             }
             
-            // Reset quantity display
+            // Reset quantity display and specification
             document.getElementById(`qty-${itemId}`).textContent = '0';
+            document.getElementById(`spec-${itemId}`).value = '';
             
             updateCartDisplay();
             showNotification(`${quantity} ${item.name}(s) added to cart!`);
@@ -1981,17 +2608,18 @@
                 return;
             }
             
-            cart.forEach(item => {
+            cart.forEach((item, index) => {
                 const cartItem = document.createElement('div');
                 cartItem.className = 'cart-item';
                 cartItem.innerHTML = `
                     <div class="cart-item-info">
                         <h4>${item.name}</h4>
+                        ${item.specification ? `<p class="cart-item-spec">${item.specification}</p>` : ''}
                         <p class="cart-item-price">$${item.price.toFixed(2)} × ${item.quantity}</p>
                     </div>
                     <div class="cart-item-controls">
                         <span class="cart-item-total">$${(item.price * item.quantity).toFixed(2)}</span>
-                        <button class="btn-remove" onclick="removeFromCart('${item.id}')">
+                        <button class="btn-remove" onclick="removeFromCart(${index})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -2000,8 +2628,8 @@
             });
         }
 
-        function removeFromCart(itemId) {
-            cart = cart.filter(item => item.id !== itemId);
+        function removeFromCart(index) {
+            cart.splice(index, 1);
             updateCartDisplay();
         }
 
@@ -2017,6 +2645,7 @@
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
+                    specification: item.specification || '',
                     total: item.price * item.quantity
                 })),
                 total: totalAmount,
@@ -2115,6 +2744,68 @@
             }
         }
 
+        // Public Requests
+        function openPublicRequestModal() {
+            document.getElementById('publicRequestModal').classList.add('active');
+        }
+
+        function closePublicRequestModal() {
+            document.getElementById('publicRequestModal').classList.remove('active');
+            document.getElementById('publicRequestType').value = 'game';
+            document.getElementById('publicRequestGame').value = 'pool';
+            document.getElementById('publicRequestMessage').value = '';
+        }
+
+        async function sendPublicRequest() {
+            const type = document.getElementById('publicRequestType').value;
+            const game = document.getElementById('publicRequestGame').value;
+            const message = document.getElementById('publicRequestMessage').value.trim();
+
+            if (!message && type !== 'game') {
+                showNotification('Please enter a message', 'error');
+                return;
+            }
+
+            let requestMessage = message;
+            if (type === 'game') {
+                requestMessage = `Looking for someone to play ${game}! ${message}`;
+            }
+
+            const publicRequest = {
+                tableNumber: currentTable,
+                requestType: type,
+                gameType: type === 'game' ? game : null,
+                message: requestMessage,
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                acceptedBy: null
+            };
+
+            try {
+                await publicRequestsRef.add(publicRequest);
+                showNotification('Public request broadcasted!');
+                closePublicRequestModal();
+            } catch (error) {
+                console.error('Error sending public request:', error);
+                showNotification('Failed to send public request', 'error');
+            }
+        }
+
+        async function acceptPublicRequest(requestId) {
+            try {
+                await publicRequestsRef.doc(requestId).update({
+                    status: 'accepted',
+                    acceptedBy: currentTable,
+                    acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Request accepted! Other table has been notified.');
+            } catch (error) {
+                console.error('Error accepting public request:', error);
+                showNotification('Failed to accept request', 'error');
+            }
+        }
+
         // Real-time Listeners
         function setupRealtimeListeners() {
             // Listen for order updates
@@ -2133,6 +2824,15 @@
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
                     renderActiveRequests(snapshot.docs);
+                });
+
+            // Listen for public requests
+            publicRequestsRef
+                .where('status', '==', 'active')
+                .where('tableNumber', '!=', currentTable)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    renderPublicRequests(snapshot.docs);
                 });
         }
 
@@ -2157,13 +2857,13 @@
                 orderCard.className = 'order-card';
                 
                 const itemsList = order.items.map(item => 
-                    `${item.name} × ${item.quantity}`
+                    `${item.name} × ${item.quantity}${item.specification ? ` (${item.specification})` : ''}`
                 ).join(', ');
                 
                 const statusColors = {
                     pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
-                    preparing: { bg: '#e3f2fd', color: '#2196F3', text: 'Preparing' },
-                    ready: { bg: '#e8f5e8', color: '#4CAF50', text: 'Ready' }
+                    preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
+                    ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
                 };
                 
                 const status = statusColors[order.status] || statusColors.pending;
@@ -2220,6 +2920,51 @@
                         <h4>${getServiceTypeName(request.serviceType)}</h4>
                         <p>Status: <span class="request-status">${request.status === 'in_progress' ? 'In Progress' : 'Pending'}</span></p>
                         ${request.message ? `<p style="font-size: 0.9rem; color: #666; margin-top: 5px;">${request.message}</p>` : ''}
+                        ${request.waiterResponse ? `<p style="font-size: 0.9rem; color: var(--primary-color, #2196F3); margin-top: 5px; font-style: italic;">${request.waiterResponse}</p>` : ''}
+                    </div>
+                `;
+                requestsList.appendChild(requestElement);
+            });
+        }
+
+        function renderPublicRequests(requestDocs) {
+            const requestsList = document.getElementById('publicRequests');
+            
+            if (requestDocs.length === 0) {
+                requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
+                return;
+            }
+
+            requestsList.innerHTML = '';
+            
+            requestDocs.forEach(doc => {
+                const request = doc.data();
+                const requestElement = document.createElement('div');
+                requestElement.className = 'public-request-card';
+                
+                const requestTypes = {
+                    game: 'Game Invite',
+                    chat: 'Chat Invite',
+                    drink: 'Drink Invite',
+                    meal: 'Meal Invite',
+                    custom: 'Custom Request'
+                };
+                
+                requestElement.innerHTML = `
+                    <div class="public-request-header">
+                        <span class="public-request-from">Table ${request.tableNumber}</span>
+                        <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
+                    </div>
+                    <div class="public-request-message">
+                        ${request.message}
+                    </div>
+                    <div class="public-request-actions">
+                        <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
+                            Accept
+                        </button>
+                        <button class="btn-ignore" onclick="this.parentElement.parentElement.remove()">
+                            Ignore
+                        </button>
                     </div>
                 `;
                 requestsList.appendChild(requestElement);
@@ -2286,6 +3031,7 @@
             loadWaiterOrders();
             loadWaiterRequests();
             loadTables();
+            loadStaffList();
             setupWaiterRealtimeListeners();
         }
 
@@ -2376,7 +3122,7 @@
                 
                 requestCard.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}" style="font-size: 1.5rem; color: #2196F3;"></i>
+                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}" style="font-size: 1.5rem; color: var(--primary-color, #2196F3);"></i>
                         <div>
                             <h3 style="margin: 0;">${getServiceTypeName(request.serviceType)}</h3>
                             <p style="margin: 5px 0 0; color: #666; font-size: 0.9rem;">
@@ -2424,13 +3170,25 @@
                 tableCard.className = 'waiter-order-card';
                 tableCard.innerHTML = `
                     <div style="text-align: center;">
-                        <i class="fas fa-chair" style="font-size: 3rem; color: #2196F3; margin-bottom: 1rem;"></i>
+                        <i class="fas fa-chair" style="font-size: 3rem; color: var(--primary-color, #2196F3); margin-bottom: 1rem;"></i>
                         <h2 style="margin: 0;">Table ${tableNumber}</h2>
                         <p style="color: #666; margin-top: 0.5rem;">Active</p>
                     </div>
                 `;
                 tablesGrid.appendChild(tableCard);
             });
+        }
+
+        async function loadStaffList() {
+            try {
+                const staffSnapshot = await staffRef.get();
+                currentStaffList = staffSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (error) {
+                console.error('Error loading staff list:', error);
+            }
         }
 
         function openOrderDetail(orderId, order) {
@@ -2453,9 +3211,10 @@
                     itemElement.innerHTML = `
                         <div>
                             <h4 style="margin: 0;">${item.name}</h4>
+                            ${item.specification ? `<p style="margin: 5px 0 0; color: #666;">${item.specification}</p>` : ''}
                             <p style="margin: 5px 0 0; color: #666;">$${item.price.toFixed(2)} × ${item.quantity}</p>
                         </div>
-                        <div style="font-weight: bold; color: #2196F3;">
+                        <div style="font-weight: bold; color: var(--primary-color, #2196F3);">
                             $${(item.price * item.quantity).toFixed(2)}
                         </div>
                     `;
@@ -2504,13 +3263,35 @@
                 </div>
             `;
             
+            // Populate waiter name dropdown
+            const waiterSelect = document.getElementById('waiterNameSelect');
+            waiterSelect.innerHTML = '';
+            currentStaffList.forEach(staff => {
+                if (staff.role === 'waiter' || staff.role === 'waitress') {
+                    const option = document.createElement('option');
+                    option.value = staff.name;
+                    option.textContent = staff.name;
+                    waiterSelect.appendChild(option);
+                }
+            });
+            
             document.getElementById('requestDetailModal').classList.add('active');
         }
 
         async function acceptRequest() {
+            const waiterName = document.getElementById('waiterNameSelect').value;
+            const response = document.getElementById('waiterResponse').value;
+            
+            if (!waiterName) {
+                showNotification('Please select your name', 'error');
+                return;
+            }
+            
             try {
                 await requestsRef.doc(currentRequestId).update({
                     status: 'in_progress',
+                    assignedTo: waiterName,
+                    waiterResponse: response || 'Waiter is on the way',
                     assignedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
@@ -2543,6 +3324,8 @@
 
         function closeRequestModal() {
             document.getElementById('requestDetailModal').classList.remove('active');
+            document.getElementById('waiterNameSelect').value = '';
+            document.getElementById('waiterResponse').value = '';
         }
 
         function showWaiterTab(tabId) {
@@ -2576,6 +3359,9 @@
             loadAdminStats();
             loadAdminMenu();
             loadAdminOrders();
+            loadStaffList();
+            loadInstitutionSettings();
+            loadThemeSettings();
         }
 
         async function loadAdminStats() {
@@ -2699,6 +3485,40 @@
             }
         }
 
+        async function loadAdminStaff() {
+            try {
+                const staffSnapshot = await staffRef.get();
+                const staffTable = document.getElementById('adminStaffList');
+                staffTable.innerHTML = '';
+                
+                staffSnapshot.docs.forEach(doc => {
+                    const staff = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${staff.name}</td>
+                        <td>${staff.role}</td>
+                        <td>${staff.username}</td>
+                        <td>
+                            <span class="status-badge active">
+                                Active
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="editStaff('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteStaff('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    staffTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading staff:', error);
+            }
+        }
+
         function openAddItemModal() {
             document.getElementById('addItemModal').classList.add('active');
         }
@@ -2711,6 +3531,18 @@
             document.getElementById('itemPrice').value = '';
             document.getElementById('itemImage').value = '';
             document.getElementById('itemAvailable').checked = true;
+        }
+
+        function openAddStaffModal() {
+            document.getElementById('addStaffModal').classList.add('active');
+        }
+
+        function closeAddStaffModal() {
+            document.getElementById('addStaffModal').classList.remove('active');
+            document.getElementById('staffNameInput').value = '';
+            document.getElementById('staffRole').value = 'waiter';
+            document.getElementById('staffUsername').value = '';
+            document.getElementById('staffPassword').value = '';
         }
 
         async function addMenuItem() {
@@ -2740,8 +3572,95 @@
             }
         }
 
+        async function addStaffMember() {
+            const staff = {
+                name: document.getElementById('staffNameInput').value,
+                role: document.getElementById('staffRole').value,
+                username: document.getElementById('staffUsername').value,
+                password: document.getElementById('staffPassword').value, // In production, hash this
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!staff.name || !staff.username || !staff.password) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                await staffRef.add(staff);
+                showNotification('Staff member added successfully!');
+                closeAddStaffModal();
+                loadAdminStaff();
+            } catch (error) {
+                console.error('Error adding staff member:', error);
+                showNotification('Failed to add staff member', 'error');
+            }
+        }
+
+        async function saveInstitutionSettings() {
+            const name = document.getElementById('institutionNameInput').value;
+            const tagline = document.getElementById('institutionTaglineInput').value;
+            
+            if (!name) {
+                showNotification('Please enter institution name', 'error');
+                return;
+            }
+            
+            try {
+                await settingsRef.doc('institution').set({
+                    name: name,
+                    tagline: tagline,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update UI
+                document.getElementById('institutionName').textContent = name;
+                document.getElementById('institutionTagline').textContent = tagline;
+                
+                showNotification('Institution settings saved!');
+            } catch (error) {
+                console.error('Error saving institution settings:', error);
+                showNotification('Failed to save settings', 'error');
+            }
+        }
+
+        async function saveThemeSettings() {
+            const primary = document.getElementById('primaryColor').value;
+            const secondary = document.getElementById('secondaryColor').value;
+            const accent = document.getElementById('accentColor').value;
+            
+            const theme = {
+                primary: primary,
+                secondary: secondary,
+                accent: accent,
+                accentHover: adjustColor(accent, -20), // Darken accent by 20 for hover
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await settingsRef.doc('theme').set(theme);
+                applyTheme(theme);
+                showNotification('Theme applied successfully!');
+            } catch (error) {
+                console.error('Error saving theme settings:', error);
+                showNotification('Failed to save theme', 'error');
+            }
+        }
+
+        function adjustColor(color, amount) {
+            // Simple color adjustment
+            return '#' + color.replace(/^#/, '').replace(/../g, color => 
+                ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2)
+            );
+        }
+
         function editMenuItem(itemId) {
             // Implementation for editing menu items
+            showNotification('Edit feature coming soon!');
+        }
+
+        function editStaff(staffId) {
+            // Implementation for editing staff
             showNotification('Edit feature coming soon!');
         }
 
@@ -2754,6 +3673,19 @@
                 } catch (error) {
                     console.error('Error deleting menu item:', error);
                     showNotification('Failed to delete menu item', 'error');
+                }
+            }
+        }
+
+        async function deleteStaff(staffId) {
+            if (confirm('Are you sure you want to delete this staff member?')) {
+                try {
+                    await staffRef.doc(staffId).delete();
+                    showNotification('Staff member deleted!');
+                    loadAdminStaff();
+                } catch (error) {
+                    console.error('Error deleting staff member:', error);
+                    showNotification('Failed to delete staff member', 'error');
                 }
             }
         }
@@ -2776,9 +3708,15 @@
                 requests: 'Service Requests',
                 tables: 'Table Management',
                 staff: 'Staff Management',
-                settings: 'Settings'
+                institution: 'Institution Settings',
+                settings: 'Theme Settings'
             };
             document.getElementById('adminSectionTitle').textContent = titles[sectionId];
+            
+            // Load specific section data
+            if (sectionId === 'staff') {
+                loadAdminStaff();
+            }
         }
 
         // Utility Functions
@@ -2839,16 +3777,18 @@
             // Check URL parameters for table number (for QR codes)
             const urlParams = new URLSearchParams(window.location.search);
             const tableFromQR = urlParams.get('table');
-            const roleFromQR = urlParams.get('role');
             
             if (tableFromQR) {
                 document.getElementById('tableNumberInput').value = tableFromQR;
                 enterAsClient();
-            } else if (roleFromQR === 'waiter') {
-                enterAsWaiter();
-            } else if (roleFromQR === 'admin') {
-                enterAsAdmin();
             }
+            
+            // Initialize QR scanner
+            initializeQRScanner();
+            
+            // Load institution and theme settings
+            loadInstitutionSettings();
+            loadThemeSettings();
             
             // Add CSS for notifications
             const style = document.createElement('style');
