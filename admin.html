@@ -3,63 +3,695 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <title>QR Order System - Admin Panel</title>
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* Institution Header */
+        .institution-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .institution-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .institution-tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Admin Landing */
+        .admin-landing {
+            background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .admin-login {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            color: white;
+            text-align: center;
+        }
+
+        .admin-login h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .admin-login p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-container.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 80px;
+        }
+
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            overflow-y: auto;
+            margin-top: 80px;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--primary-color, #3498db);
+            color: white;
+        }
+
+        .admin-main {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent-color, #4CAF50);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover, #45a049);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color, #667eea), var(--secondary-color, #764ba2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .menu-items-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .menu-items-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+        }
+
+        .menu-items-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .item-thumbnail {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--accent-color, #4CAF50);
+        }
+
+        .status-badge.inactive {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color, #2196F3);
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-color, #2196F3);
+            color: white;
+        }
+
+        .btn-delete {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        .btn-delete:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .waiter-order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color, #2196F3);
+        }
+
+        .waiter-order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-status-badge {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .order-status-badge.pending {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+
+        .order-status-badge.preparing {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--primary-color, #2196F3);
+        }
+
+        .order-status-badge.ready {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--accent-color, #4CAF50);
+        }
+
+        .order-items-preview {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .order-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .order-total {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color, #2196F3);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-color, #4CAF50);
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-color, #4CAF50);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .institution-name {
+                font-size: 1.5rem;
+            }
+            
+            .institution-tagline {
+                font-size: 0.9rem;
+            }
+            
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .institution-header {
+                padding: 0.5rem 1rem;
+            }
+            
+            .institution-name {
+                font-size: 1.2rem;
+            }
+            
+            .institution-tagline {
+                font-size: 0.8rem;
+            }
+            
+            .admin-login {
+                padding: 2rem;
+            }
+            
+            .admin-login h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            
+            .admin-header {
+                padding: 1rem;
+            }
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Sidebar -->
+    <!-- Institution Header -->
+    <div class="institution-header" id="institutionHeader">
+        <div class="institution-name" id="institutionName">QR Order System</div>
+        <div class="institution-tagline" id="institutionTagline">Admin Panel</div>
+    </div>
+
+    <!-- Admin Landing -->
+    <div id="adminLanding" class="admin-landing">
+        <div class="admin-login">
+            <h1><i class="fas fa-user-shield"></i> Admin Login</h1>
+            <p>Enter credentials to access admin panel</p>
+            <div class="form-group">
+                <input type="text" id="adminUsername" placeholder="Username" style="margin-bottom: 1rem;">
+                <input type="password" id="adminPassword" placeholder="Password">
+            </div>
+            <button class="btn btn-primary" onclick="loginAsAdmin()" style="width: 100%;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Interface -->
+    <div id="adminPage" class="admin-container">
         <aside class="admin-sidebar">
             <div class="sidebar-header">
                 <h2><i class="fas fa-crown"></i> Admin Panel</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+                <a href="#" class="nav-item active" onclick="showAdminSection('dashboard')">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('menu')">
-                    <i class="fas fa-utensils"></i> Menu Management
+                <a href="#" class="nav-item" onclick="showAdminSection('menu')">
+                    <i class="fas fa-utensils"></i> Menu
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('orders')">
+                <a href="#" class="nav-item" onclick="showAdminSection('orders')">
                     <i class="fas fa-clipboard-list"></i> Orders
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('requests')">
-                    <i class="fas fa-bell"></i> Service Requests
+                <a href="#" class="nav-item" onclick="showAdminSection('requests')">
+                    <i class="fas fa-bell"></i> Requests
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('tables')">
+                <a href="#" class="nav-item" onclick="showAdminSection('tables')">
                     <i class="fas fa-chair"></i> Tables
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('staff')">
+                <a href="#" class="nav-item" onclick="showAdminSection('staff')">
                     <i class="fas fa-users"></i> Staff
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('analytics')">
-                    <i class="fas fa-chart-bar"></i> Analytics
+                <a href="#" class="nav-item" onclick="showAdminSection('institution')">
+                    <i class="fas fa-building"></i> Institution
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('settings')">
+                <a href="#" class="nav-item" onclick="showAdminSection('settings')">
                     <i class="fas fa-cog"></i> Settings
                 </a>
             </nav>
-            <div class="sidebar-footer">
-                <button class="btn-logout" onclick="logout()">
+            <div class="sidebar-footer" style="padding: 1.5rem;">
+                <button class="btn btn-primary" onclick="logoutAdmin()" style="width: 100%;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="admin-main">
-            <!-- Header -->
             <header class="admin-header">
-                <div class="header-left">
-                    <h1 id="sectionTitle">Dashboard</h1>
-                </div>
-                <div class="header-right">
-                    <div class="admin-info">
-                        <span id="adminName">Admin User</span>
-                        <i class="fas fa-user-circle"></i>
-                    </div>
+                <h1 id="adminSectionTitle">Dashboard</h1>
+                <div class="admin-info">
+                    <span>Admin User</span>
+                    <i class="fas fa-user-circle" style="font-size: 2rem; color: #666;"></i>
                 </div>
             </header>
 
@@ -71,8 +703,8 @@
                             <i class="fas fa-shopping-cart"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="totalOrders">0</h3>
-                            <p>Total Orders</p>
+                            <h3 id="totalOrdersCount">0</h3>
+                            <p>Total Orders Today</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -80,7 +712,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="pendingOrders">0</h3>
+                            <h3 id="pendingOrdersCount">0</h3>
                             <p>Pending Orders</p>
                         </div>
                     </div>
@@ -89,7 +721,7 @@
                             <i class="fas fa-bell"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="activeRequests">0</h3>
+                            <h3 id="activeRequestsCount">0</h3>
                             <p>Active Requests</p>
                         </div>
                     </div>
@@ -98,41 +730,36 @@
                             <i class="fas fa-chair"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="activeTables">0</h3>
+                            <h3 id="activeTablesCount">0</h3>
                             <p>Active Tables</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="dashboard-charts">
-                    <div class="chart-card">
+                <div class="recent-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                    <div class="recent-orders">
                         <h3>Recent Orders</h3>
-                        <div class="recent-orders" id="recentOrdersList">
-                            <!-- Recent orders will be loaded here -->
+                        <div id="recentOrdersList" style="background: white; border-radius: 15px; padding: 1rem; margin-top: 1rem;">
+                            <!-- Recent orders -->
                         </div>
                     </div>
-                    <div class="chart-card">
+                    <div class="popular-items">
                         <h3>Popular Items</h3>
-                        <div class="popular-items" id="popularItemsList">
-                            <!-- Popular items will be loaded here -->
+                        <div id="popularItemsList" style="background: white; border-radius: 15px; padding: 1rem; margin-top: 1rem;">
+                            <!-- Popular items -->
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Menu Management Section -->
+            <!-- Menu Section -->
             <section id="menuSection" class="content-section">
                 <div class="section-header">
                     <h2>Menu Management</h2>
-                    <button class="btn-primary" onclick="openAddItemModal()">
-                        <i class="fas fa-plus"></i> Add Menu Item
+                    <button class="btn btn-primary" onclick="openAddItemModal()">
+                        <i class="fas fa-plus"></i> Add Item
                     </button>
                 </div>
-                
-                <div class="category-tabs">
-                    <!-- Categories will be loaded here -->
-                </div>
-                
                 <div class="menu-items-table">
                     <table>
                         <thead>
@@ -142,11 +769,11 @@
                                 <th>Description</th>
                                 <th>Category</th>
                                 <th>Price</th>
-                                <th>Available</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="menuItemsTable">
+                        <tbody id="adminMenuItems">
                             <!-- Menu items will be loaded here -->
                         </tbody>
                     </table>
@@ -156,45 +783,87 @@
             <!-- Orders Section -->
             <section id="ordersSection" class="content-section">
                 <div class="section-header">
-                    <h2>Order Management</h2>
-                    <div class="filter-controls">
-                        <select id="orderFilter" onchange="filterOrders()">
-                            <option value="all">All Orders</option>
-                            <option value="pending">Pending</option>
-                            <option value="preparing">Preparing</option>
-                            <option value="ready">Ready</option>
-                            <option value="served">Served</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
+                    <h2>All Orders</h2>
+                    <select id="adminOrderFilter" onchange="filterAdminOrders()">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="completed">Completed</option>
+                    </select>
                 </div>
-                
-                <div class="orders-grid" id="ordersGrid">
-                    <!-- Orders will be loaded here -->
+                <div class="orders-grid" id="adminOrdersGrid">
+                    <!-- All orders will be loaded here -->
                 </div>
             </section>
 
-            <!-- Service Requests Section -->
-            <section id="requestsSection" class="content-section">
+            <!-- Staff Section -->
+            <section id="staffSection" class="content-section">
                 <div class="section-header">
-                    <h2>Service Requests</h2>
-                    <div class="filter-controls">
-                        <select id="requestFilter" onchange="filterRequests()">
-                            <option value="all">All Requests</option>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
+                    <h2>Staff Management</h2>
+                    <button class="btn btn-primary" onclick="openAddStaffModal()">
+                        <i class="fas fa-plus"></i> Add Staff
+                    </button>
                 </div>
-                
-                <div class="requests-grid" id="requestsGrid">
-                    <!-- Requests will be loaded here -->
+                <div class="menu-items-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Username</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStaffList">
+                            <!-- Staff list will be loaded here -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
-            <!-- Add more sections for Tables, Staff, Analytics, Settings -->
+            <!-- Institution Section -->
+            <section id="institutionSection" class="content-section">
+                <div class="section-header">
+                    <h2>Institution Settings</h2>
+                </div>
+                <div class="form-group">
+                    <label for="institutionNameInput">Institution Name</label>
+                    <input type="text" id="institutionNameInput" placeholder="Enter institution name">
+                </div>
+                <div class="form-group">
+                    <label for="institutionTaglineInput">Tagline</label>
+                    <input type="text" id="institutionTaglineInput" placeholder="Enter tagline">
+                </div>
+                <button class="btn btn-primary" onclick="saveInstitutionSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </section>
 
+            <!-- Theme Settings Section -->
+            <section id="settingsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Theme Settings</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                    <div class="form-group">
+                        <label for="primaryColor">Primary Color</label>
+                        <input type="color" id="primaryColor" value="#667eea">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondaryColor">Secondary Color</label>
+                        <input type="color" id="secondaryColor" value="#764ba2">
+                    </div>
+                    <div class="form-group">
+                        <label for="accentColor">Accent Color</label>
+                        <input type="color" id="accentColor" value="#4CAF50">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveThemeSettings()" style="margin-top: 2rem;">
+                    <i class="fas fa-palette"></i> Apply Theme
+                </button>
+            </section>
         </main>
     </div>
 
@@ -205,44 +874,593 @@
                 <h2>Add Menu Item</h2>
                 <button class="close-modal" onclick="closeAddItemModal()">&times;</button>
             </div>
-            <form id="addItemForm" onsubmit="addMenuItem(event)">
-                <div class="form-group">
-                    <label for="itemName">Item Name</label>
-                    <input type="text" id="itemName" required>
-                </div>
-                <div class="form-group">
-                    <label for="itemDescription">Description</label>
-                    <textarea id="itemDescription" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="itemCategory">Category</label>
-                    <select id="itemCategory" required>
-                        <option value="">Select Category</option>
-                        <!-- Categories will be populated -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="itemPrice">Price ($)</label>
-                    <input type="number" id="itemPrice" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="itemImage">Image URL</label>
-                    <input type="text" id="itemImage" placeholder="https://example.com/image.jpg">
-                </div>
-                <div class="form-group">
-                    <label for="itemAvailable">
-                        <input type="checkbox" id="itemAvailable" checked> Available
-                    </label>
-                </div>
-                <button type="submit" class="btn-submit">Add Item</button>
-            </form>
+            <div class="form-group">
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" required>
+            </div>
+            <div class="form-group">
+                <label for="itemDescription">Description</label>
+                <textarea id="itemDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="itemCategory">Category</label>
+                <input type="text" id="itemCategory" placeholder="e.g., Appetizers, Drinks, Main Course" required>
+            </div>
+            <div class="form-group">
+                <label for="itemPrice">Price ($)</label>
+                <input type="number" id="itemPrice" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="itemImage">Image URL</label>
+                <input type="text" id="itemImage" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="itemAvailable" checked> Available
+                </label>
+            </div>
+            <button class="btn btn-submit" onclick="addMenuItem()">
+                <i class="fas fa-plus"></i> Add Item
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div class="modal" id="addStaffModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Staff Member</h2>
+                <button class="close-modal" onclick="closeAddStaffModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="staffNameInput">Full Name</label>
+                <input type="text" id="staffNameInput" required>
+            </div>
+            <div class="form-group">
+                <label for="staffRole">Role</label>
+                <select id="staffRole">
+                    <option value="waiter">Waiter</option>
+                    <option value="waitress">Waitress</option>
+                    <option value="bartender">Bartender</option>
+                    <option value="manager">Manager</option>
+                    <option value="security">Security</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="staffUsername">Username</label>
+                <input type="text" id="staffUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="staffPassword">Password</label>
+                <input type="password" id="staffPassword" required>
+            </div>
+            <button class="btn btn-submit" onclick="addStaffMember()">
+                <i class="fas fa-plus"></i> Add Staff
+            </button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/admin.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn3dGe2dhgfrqwYENgWA1biEW8ngXv068",
+            authDomain: "office-manager-pro-1b6ae.firebaseapp.com",
+            projectId: "office-manager-pro-1b6ae",
+            storageBucket: "office-manager-pro-1b6ae.firebasestorage.app",
+            messagingSenderId: "202156442292",
+            appId: "1:202156442292:web:664d17e9c8e75535168de1",
+            measurementId: "G-BTY9GY3HBX"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Collections
+        const menuRef = db.collection("menu");
+        const ordersRef = db.collection("orders");
+        const requestsRef = db.collection("requests");
+        const staffRef = db.collection("staff");
+        const settingsRef = db.collection("settings");
+
+        // Global Variables
+        let institutionSettings = null;
+        let themeSettings = null;
+
+        // Load institution settings
+        async function loadInstitutionSettings() {
+            try {
+                const settingsDoc = await settingsRef.doc('institution').get();
+                if (settingsDoc.exists) {
+                    institutionSettings = settingsDoc.data();
+                    document.getElementById('institutionName').textContent = institutionSettings.name || 'QR Order System';
+                    
+                    if (document.getElementById('institutionNameInput')) {
+                        document.getElementById('institutionNameInput').value = institutionSettings.name || '';
+                        document.getElementById('institutionTaglineInput').value = institutionSettings.tagline || '';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading institution settings:', error);
+            }
+        }
+
+        // Load theme settings
+        async function loadThemeSettings() {
+            try {
+                const themeDoc = await settingsRef.doc('theme').get();
+                if (themeDoc.exists) {
+                    themeSettings = themeDoc.data();
+                    applyTheme(themeSettings);
+                    
+                    if (document.getElementById('primaryColor')) {
+                        document.getElementById('primaryColor').value = themeSettings.primary || '#667eea';
+                        document.getElementById('secondaryColor').value = themeSettings.secondary || '#764ba2';
+                        document.getElementById('accentColor').value = themeSettings.accent || '#4CAF50';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading theme settings:', error);
+            }
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.style.setProperty('--primary-color', theme.primary || '#667eea');
+            document.documentElement.style.setProperty('--secondary-color', theme.secondary || '#764ba2');
+            document.documentElement.style.setProperty('--accent-color', theme.accent || '#4CAF50');
+            document.documentElement.style.setProperty('--accent-hover', theme.accentHover || '#45a049');
+        }
+
+        // Admin Functions
+        function loginAsAdmin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            // Simple authentication (admin:admin)
+            if (username === 'admin' && password === 'admin') {
+                document.getElementById('adminLanding').style.display = 'none';
+                document.getElementById('adminPage').classList.add('active');
+                initializeAdminApp();
+            } else {
+                showNotification('Invalid admin credentials', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminPage').classList.remove('active');
+            document.getElementById('adminLanding').style.display = 'flex';
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function initializeAdminApp() {
+            loadAdminStats();
+            loadAdminMenu();
+            loadAdminOrders();
+            loadAdminStaff();
+            loadInstitutionSettings();
+            loadThemeSettings();
+        }
+
+        async function loadAdminStats() {
+            try {
+                // Get today's date
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Total orders today
+                const ordersToday = await ordersRef
+                    .where('createdAt', '>=', today)
+                    .get();
+                document.getElementById('totalOrdersCount').textContent = ordersToday.size;
+                
+                // Pending orders
+                const pendingOrders = ordersToday.docs.filter(doc => 
+                    doc.data().status === 'pending'
+                ).length;
+                document.getElementById('pendingOrdersCount').textContent = pendingOrders;
+                
+                // Active requests
+                const activeRequests = await requestsRef
+                    .where('status', 'in', ['pending', 'in_progress'])
+                    .get();
+                document.getElementById('activeRequestsCount').textContent = activeRequests.size;
+                
+                // Active tables (from orders)
+                const tableSet = new Set();
+                ordersToday.docs.forEach(doc => {
+                    if (doc.data().status !== 'completed') {
+                        tableSet.add(doc.data().tableNumber);
+                    }
+                });
+                document.getElementById('activeTablesCount').textContent = tableSet.size;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadAdminMenu() {
+            try {
+                const menuSnapshot = await menuRef.get();
+                const menuTable = document.getElementById('adminMenuItems');
+                menuTable.innerHTML = '';
+                
+                menuSnapshot.docs.forEach(doc => {
+                    const item = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            ${item.image ? 
+                                `<img src="${item.image}" alt="${item.name}" class="item-thumbnail">` : 
+                                `<i class="fas fa-utensils"></i>`
+                            }
+                        </td>
+                        <td>${item.name}</td>
+                        <td>${item.description || ''}</td>
+                        <td>${item.category || ''}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>
+                            <span class="status-badge ${item.available ? 'active' : 'inactive'}">
+                                ${item.available ? 'Available' : 'Unavailable'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="editMenuItem('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteMenuItem('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    menuTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        }
+
+        async function loadAdminOrders() {
+            try {
+                const ordersSnapshot = await ordersRef
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const ordersGrid = document.getElementById('adminOrdersGrid');
+                ordersGrid.innerHTML = '';
+                
+                ordersSnapshot.docs.forEach(doc => {
+                    const order = doc.data();
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'waiter-order-card';
+                    
+                    const itemsPreview = order.items?.slice(0, 2).map(item => 
+                        `${item.name} × ${item.quantity}`
+                    ).join(', ');
+                    
+                    orderCard.innerHTML = `
+                        <div class="order-card-header">
+                            <h3>Table ${order.tableNumber}</h3>
+                            <span class="order-status-badge ${order.status}">
+                                ${order.status}
+                            </span>
+                        </div>
+                        <div class="order-items-preview">
+                            ${itemsPreview}
+                        </div>
+                        <div class="order-card-footer">
+                            <div class="order-total">$${order.total?.toFixed(2) || '0.00'}</div>
+                            <div class="order-time">
+                                ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : ''}
+                            </div>
+                        </div>
+                    `;
+                    ordersGrid.appendChild(orderCard);
+                });
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        async function loadAdminStaff() {
+            try {
+                const staffSnapshot = await staffRef.get();
+                const staffTable = document.getElementById('adminStaffList');
+                staffTable.innerHTML = '';
+                
+                staffSnapshot.docs.forEach(doc => {
+                    const staff = doc.data();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${staff.name}</td>
+                        <td>${staff.role}</td>
+                        <td>${staff.username}</td>
+                        <td>
+                            <span class="status-badge active">
+                                Active
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="editStaff('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteStaff('${doc.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    staffTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading staff:', error);
+            }
+        }
+
+        function openAddItemModal() {
+            document.getElementById('addItemModal').classList.add('active');
+        }
+
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.remove('active');
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('itemCategory').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('itemAvailable').checked = true;
+        }
+
+        function openAddStaffModal() {
+            document.getElementById('addStaffModal').classList.add('active');
+        }
+
+        function closeAddStaffModal() {
+            document.getElementById('addStaffModal').classList.remove('active');
+            document.getElementById('staffNameInput').value = '';
+            document.getElementById('staffRole').value = 'waiter';
+            document.getElementById('staffUsername').value = '';
+            document.getElementById('staffPassword').value = '';
+        }
+
+        async function addMenuItem() {
+            const item = {
+                name: document.getElementById('itemName').value,
+                description: document.getElementById('itemDescription').value,
+                category: document.getElementById('itemCategory').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                image: document.getElementById('itemImage').value || null,
+                available: document.getElementById('itemAvailable').checked,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!item.name || !item.category || !item.price) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                await menuRef.add(item);
+                showNotification('Menu item added successfully!');
+                closeAddItemModal();
+                loadAdminMenu();
+            } catch (error) {
+                console.error('Error adding menu item:', error);
+                showNotification('Failed to add menu item', 'error');
+            }
+        }
+
+        async function addStaffMember() {
+            const staff = {
+                name: document.getElementById('staffNameInput').value,
+                role: document.getElementById('staffRole').value,
+                username: document.getElementById('staffUsername').value,
+                password: document.getElementById('staffPassword').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!staff.name || !staff.username || !staff.password) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                await staffRef.add(staff);
+                showNotification('Staff member added successfully!');
+                closeAddStaffModal();
+                loadAdminStaff();
+            } catch (error) {
+                console.error('Error adding staff member:', error);
+                showNotification('Failed to add staff member', 'error');
+            }
+        }
+
+        async function saveInstitutionSettings() {
+            const name = document.getElementById('institutionNameInput').value;
+            const tagline = document.getElementById('institutionTaglineInput').value;
+            
+            if (!name) {
+                showNotification('Please enter institution name', 'error');
+                return;
+            }
+            
+            try {
+                await settingsRef.doc('institution').set({
+                    name: name,
+                    tagline: tagline,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update UI
+                document.getElementById('institutionName').textContent = name;
+                
+                showNotification('Institution settings saved!');
+            } catch (error) {
+                console.error('Error saving institution settings:', error);
+                showNotification('Failed to save settings', 'error');
+            }
+        }
+
+        async function saveThemeSettings() {
+            const primary = document.getElementById('primaryColor').value;
+            const secondary = document.getElementById('secondaryColor').value;
+            const accent = document.getElementById('accentColor').value;
+            
+            const theme = {
+                primary: primary,
+                secondary: secondary,
+                accent: accent,
+                accentHover: adjustColor(accent, -20),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await settingsRef.doc('theme').set(theme);
+                applyTheme(theme);
+                showNotification('Theme applied successfully!');
+            } catch (error) {
+                console.error('Error saving theme settings:', error);
+                showNotification('Failed to save theme', 'error');
+            }
+        }
+
+        function adjustColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => 
+                ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2)
+            );
+        }
+
+        function editMenuItem(itemId) {
+            showNotification('Edit feature coming soon!');
+        }
+
+        function editStaff(staffId) {
+            showNotification('Edit feature coming soon!');
+        }
+
+        async function deleteMenuItem(itemId) {
+            if (confirm('Are you sure you want to delete this menu item?')) {
+                try {
+                    await menuRef.doc(itemId).delete();
+                    showNotification('Menu item deleted!');
+                    loadAdminMenu();
+                } catch (error) {
+                    console.error('Error deleting menu item:', error);
+                    showNotification('Failed to delete menu item', 'error');
+                }
+            }
+        }
+
+        async function deleteStaff(staffId) {
+            if (confirm('Are you sure you want to delete this staff member?')) {
+                try {
+                    await staffRef.doc(staffId).delete();
+                    showNotification('Staff member deleted!');
+                    loadAdminStaff();
+                } catch (error) {
+                    console.error('Error deleting staff member:', error);
+                    showNotification('Failed to delete staff member', 'error');
+                }
+            }
+        }
+
+        function showAdminSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionId}Section`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                menu: 'Menu Management',
+                orders: 'Order Management',
+                requests: 'Service Requests',
+                tables: 'Table Management',
+                staff: 'Staff Management',
+                institution: 'Institution Settings',
+                settings: 'Theme Settings'
+            };
+            document.getElementById('adminSectionTitle').textContent = titles[sectionId];
+            
+            // Load specific section data
+            if (sectionId === 'staff') {
+                loadAdminStaff();
+            }
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hr ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays} days ago`;
+        }
+
+        function filterAdminOrders() {
+            showNotification('Filtering admin orders...');
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load institution and theme settings
+            loadInstitutionSettings();
+            loadThemeSettings();
+            
+            // Add CSS for notifications
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Close modals on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
