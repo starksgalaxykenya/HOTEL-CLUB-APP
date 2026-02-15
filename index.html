@@ -1002,8 +1002,14 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Load Html5Qrcode library first -->
+    <!-- Load Html5Qrcode library with fallback -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    <script>
+        // Fallback if CDN fails
+        if (typeof Html5Qrcode === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"><\/script>');
+        }
+    </script>
 </head>
 <body>
     <!-- Institution Header -->
@@ -1026,6 +1032,12 @@
                     <div id="qr-reader"></div>
                     <p class="scanner-instructions">Point camera at table QR code</p>
                 </div>
+                <button class="btn btn-primary" onclick="startQRScanner()" style="margin-top: 1rem;">
+                    <i class="fas fa-camera"></i> Start Scanner
+                </button>
+                <button class="btn" onclick="stopQRScanner()" style="margin-top: 1rem; background: #f44336; color: white;">
+                    <i class="fas fa-stop"></i> Stop Scanner
+                </button>
             </div>
             
             <div class="table-input-section">
@@ -1254,7 +1266,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1287,17 +1298,22 @@
         let currentCategory = 'all';
         let institutionSettings = null;
         let themeSettings = null;
+        let html5QrCode = null;
 
-        // Initialize QR Scanner
-        function initializeQRScanner() {
+        // QR Scanner Functions
+        function startQRScanner() {
             // Check if Html5Qrcode is loaded
             if (typeof Html5Qrcode === 'undefined') {
-                console.error('Html5Qrcode library not loaded');
-                showNotification('QR Scanner library loading...', 'error');
+                showNotification('QR Scanner library loading... Please try again.', 'error');
                 return;
             }
 
-            const html5QrCode = new Html5Qrcode("qr-reader");
+            // Stop existing scanner if any
+            if (html5QrCode) {
+                stopQRScanner();
+            }
+
+            html5QrCode = new Html5Qrcode("qr-reader");
             
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 // Parse table number from QR code
@@ -1306,12 +1322,11 @@
                 // Try to extract table number from various QR code formats
                 if (decodedText.includes('table=')) {
                     tableNumber = decodedText.split('table=')[1].split('&')[0];
-                } else if (decodedText.includes(',')) {
-                    // If QR contains coordinates or other data
-                    console.log('QR data:', decodedText);
-                } else {
-                    // Assume the QR code contains just the table number
+                } else if (/^\d+$/.test(decodedText)) {
+                    // If QR contains just numbers
                     tableNumber = decodedText;
+                } else {
+                    console.log('QR data:', decodedText);
                 }
                 
                 if (tableNumber) {
@@ -1319,13 +1334,14 @@
                     showNotification('Table number scanned successfully!');
                     
                     // Stop scanning
-                    html5QrCode.stop().then(() => {
-                        html5QrCode.clear();
-                    }).catch(err => {
-                        console.error("Failed to stop scanner", err);
-                    });
+                    stopQRScanner();
+                    
+                    // Auto-enter after successful scan
+                    setTimeout(() => {
+                        enterAsClient();
+                    }, 1000);
                 } else {
-                    showNotification('Invalid QR code. Please try again or enter manually.', 'error');
+                    showNotification('Please scan a valid table QR code', 'error');
                 }
             };
             
@@ -1346,6 +1362,17 @@
             });
         }
 
+        function stopQRScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    html5QrCode = null;
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
+                });
+            }
+        }
+
         // App Navigation
         function enterAsClient() {
             const tableNumber = document.getElementById('tableNumberInput').value;
@@ -1358,6 +1385,9 @@
             hideAllPages();
             document.getElementById('clientPage').classList.add('active');
             document.getElementById('currentTable').textContent = tableNumber;
+            
+            // Stop QR scanner if running
+            stopQRScanner();
             
             // Initialize client app
             initializeClientApp();
@@ -1823,33 +1853,44 @@
             }
         }
 
-        // Real-time Listeners
+        // Real-time Listeners - FIXED VERSION
         function setupRealtimeListeners() {
-            // Listen for order updates
+            if (!currentTable) return;
+            
+            // Listen for order updates - FIXED query
             ordersRef
-                .where('tableNumber', '==', currentTable)
+                .where('tableNumber', '==', parseInt(currentTable))
                 .where('status', 'in', ['pending', 'preparing', 'ready'])
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
                     renderCurrentOrders(snapshot.docs);
+                }, error => {
+                    console.error('Order listener error:', error);
                 });
 
-            // Listen for request updates
+            // Listen for request updates - FIXED query
             requestsRef
-                .where('tableNumber', '==', currentTable)
+                .where('tableNumber', '==', parseInt(currentTable))
                 .where('status', 'in', ['pending', 'in_progress'])
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
                     renderActiveRequests(snapshot.docs);
+                }, error => {
+                    console.error('Request listener error:', error);
                 });
 
-            // Listen for public requests
+            // Listen for public requests - FIXED query
             publicRequestsRef
                 .where('status', '==', 'active')
-                .where('tableNumber', '!=', currentTable)
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
-                    renderPublicRequests(snapshot.docs);
+                    // Filter out own requests manually
+                    const filteredDocs = snapshot.docs.filter(doc => 
+                        doc.data().tableNumber !== parseInt(currentTable)
+                    );
+                    renderPublicRequests(filteredDocs);
+                }, error => {
+                    console.error('Public request listener error:', error);
                 });
         }
 
@@ -2098,12 +2139,6 @@
                 document.getElementById('tableNumberInput').value = tableFromQR;
                 enterAsClient();
             }
-            
-            // Small delay to ensure Html5Qrcode is loaded
-            setTimeout(() => {
-                // Initialize QR scanner
-                initializeQRScanner();
-            }, 500);
             
             // Load institution and theme settings
             loadInstitutionSettings();
