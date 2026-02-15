@@ -1002,14 +1002,8 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Load Html5Qrcode library with fallback -->
+    <!-- Load Html5Qrcode library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
-    <script>
-        // Fallback if CDN fails
-        if (typeof Html5Qrcode === 'undefined') {
-            document.write('<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"><\/script>');
-        }
-    </script>
 </head>
 <body>
     <!-- Institution Header -->
@@ -1299,6 +1293,9 @@
         let institutionSettings = null;
         let themeSettings = null;
         let html5QrCode = null;
+        let orderListener = null;
+        let requestListener = null;
+        let publicRequestListener = null;
 
         // QR Scanner Functions
         function startQRScanner() {
@@ -1325,8 +1322,6 @@
                 } else if (/^\d+$/.test(decodedText)) {
                     // If QR contains just numbers
                     tableNumber = decodedText;
-                } else {
-                    console.log('QR data:', decodedText);
                 }
                 
                 if (tableNumber) {
@@ -1439,6 +1434,31 @@
             loadThemeSettings();
             setupRealtimeListeners();
             updateCartDisplay();
+            
+            // Test order display with sample data (remove in production)
+            setTimeout(() => {
+                testOrderDisplay();
+            }, 2000);
+        }
+
+        // Test function to verify order display (remove in production)
+        function testOrderDisplay() {
+            const ordersList = document.getElementById('currentOrders');
+            ordersList.innerHTML = '';
+            
+            const testOrder = {
+                items: [
+                    { name: 'Burger', quantity: 2, specification: 'No onions', price: 12.99 },
+                    { name: 'Fries', quantity: 1, specification: '', price: 4.99 }
+                ],
+                total: 30.97,
+                status: 'preparing',
+                createdAt: { toDate: () => new Date() },
+                estimatedTime: 15,
+                assignedWaiter: 'John'
+            };
+            
+            renderCurrentOrders([{ data: () => testOrder }]);
         }
 
         async function loadMenu() {
@@ -1672,7 +1692,7 @@
             }
 
             const order = {
-                tableNumber: currentTable,
+                tableNumber: parseInt(currentTable),
                 items: cart.map(item => ({
                     name: item.name,
                     price: item.price,
@@ -1706,7 +1726,7 @@
         // Service Requests
         async function requestService(serviceType) {
             const request = {
-                tableNumber: currentTable,
+                tableNumber: parseInt(currentTable),
                 serviceType: serviceType,
                 status: 'pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1732,7 +1752,7 @@
             }
 
             const request = {
-                tableNumber: currentTable,
+                tableNumber: parseInt(currentTable),
                 serviceType: 'special',
                 message: message,
                 status: 'pending',
@@ -1760,7 +1780,7 @@
             }
 
             const request = {
-                tableNumber: currentTable,
+                tableNumber: parseInt(currentTable),
                 serviceType: 'specific_staff',
                 staffName: name,
                 staffType: type,
@@ -1818,7 +1838,7 @@
             }
 
             const publicRequest = {
-                tableNumber: currentTable,
+                tableNumber: parseInt(currentTable),
                 requestType: requestType,
                 gameType: gameType,
                 message: requestMessage,
@@ -1842,7 +1862,7 @@
             try {
                 await publicRequestsRef.doc(requestId).update({
                     status: 'accepted',
-                    acceptedBy: currentTable,
+                    acceptedBy: parseInt(currentTable),
                     acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
@@ -1857,36 +1877,52 @@
         function setupRealtimeListeners() {
             if (!currentTable) return;
             
-            // Listen for order updates - FIXED query
-            ordersRef
-                .where('tableNumber', '==', parseInt(currentTable))
+            // Clean up existing listeners
+            if (orderListener) orderListener();
+            if (requestListener) requestListener();
+            if (publicRequestListener) publicRequestListener();
+            
+            const tableNum = parseInt(currentTable);
+            
+            // Listen for order updates
+            orderListener = ordersRef
+                .where('tableNumber', '==', tableNum)
                 .where('status', 'in', ['pending', 'preparing', 'ready'])
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
+                    console.log('Orders updated:', snapshot.size, 'orders found');
                     renderCurrentOrders(snapshot.docs);
                 }, error => {
                     console.error('Order listener error:', error);
+                    // Fallback: try without orderBy
+                    ordersRef
+                        .where('tableNumber', '==', tableNum)
+                        .where('status', 'in', ['pending', 'preparing', 'ready'])
+                        .onSnapshot(snapshot => {
+                            renderCurrentOrders(snapshot.docs);
+                        });
                 });
 
-            // Listen for request updates - FIXED query
-            requestsRef
-                .where('tableNumber', '==', parseInt(currentTable))
+            // Listen for request updates
+            requestListener = requestsRef
+                .where('tableNumber', '==', tableNum)
                 .where('status', 'in', ['pending', 'in_progress'])
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
+                    console.log('Requests updated:', snapshot.size, 'requests found');
                     renderActiveRequests(snapshot.docs);
                 }, error => {
                     console.error('Request listener error:', error);
                 });
 
-            // Listen for public requests - FIXED query
-            publicRequestsRef
+            // Listen for public requests
+            publicRequestListener = publicRequestsRef
                 .where('status', '==', 'active')
                 .orderBy('createdAt', 'desc')
                 .onSnapshot(snapshot => {
-                    // Filter out own requests manually
+                    // Filter out own requests
                     const filteredDocs = snapshot.docs.filter(doc => 
-                        doc.data().tableNumber !== parseInt(currentTable)
+                        doc.data().tableNumber !== tableNum
                     );
                     renderPublicRequests(filteredDocs);
                 }, error => {
@@ -1897,7 +1933,7 @@
         function renderCurrentOrders(orderDocs) {
             const ordersList = document.getElementById('currentOrders');
             
-            if (orderDocs.length === 0) {
+            if (!orderDocs || orderDocs.length === 0) {
                 ordersList.innerHTML = `
                     <div class="empty-orders">
                         <i class="fas fa-clipboard-list"></i>
@@ -1920,31 +1956,38 @@
                 
                 const statusColors = {
                     pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
-                    preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
-                    ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
+                    preparing: { bg: '#e3f2fd', color: '#2196F3', text: 'Preparing' },
+                    ready: { bg: '#e8f5e8', color: '#4CAF50', text: 'Ready' }
                 };
                 
                 const status = statusColors[order.status] || statusColors.pending;
                 
+                // Format time
+                let orderTime = '';
+                if (order.createdAt && order.createdAt.toDate) {
+                    const date = order.createdAt.toDate();
+                    orderTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                
                 // Add waiter info if order is claimed
                 const waiterInfo = order.assignedWaiter ? 
-                    `<div style="font-size: 0.85rem; color: var(--primary-color); margin-top: 0.5rem;">
+                    `<div style="font-size: 0.85rem; color: #2196F3; margin-top: 0.5rem;">
                         <i class="fas fa-user-check"></i> Assigned to: ${order.assignedWaiter}
                     </div>` : '';
                 
                 orderCard.innerHTML = `
                     <div class="order-header">
-                        <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
+                        <span class="order-status" style="background: ${status.bg}; color: ${status.color}; padding: 3px 10px; border-radius: 15px; font-weight: 600;">
                             ${status.text}
                         </span>
-                        <span class="order-time">${formatTime(order.createdAt)}</span>
+                        <span class="order-time" style="font-size: 0.85rem; color: #666;">${orderTime}</span>
                     </div>
-                    <p class="order-items">${itemsList}</p>
+                    <p class="order-items" style="margin: 0.5rem 0; color: #444;">${itemsList}</p>
                     ${waiterInfo}
-                    <div class="order-footer">
-                        <span class="order-total">$${order.total.toFixed(2)}</span>
+                    <div class="order-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <span class="order-total" style="font-weight: bold; color: #333;">$${order.total.toFixed(2)}</span>
                         ${order.estimatedTime ? 
-                          `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
+                          `<span class="order-eta" style="color: #666; font-style: italic;">ETA: ${order.estimatedTime} min</span>` : ''}
                     </div>
                 `;
                 ordersList.appendChild(orderCard);
@@ -1954,7 +1997,7 @@
         function renderActiveRequests(requestDocs) {
             const requestsList = document.getElementById('activeRequests');
             
-            if (requestDocs.length === 0) {
+            if (!requestDocs || requestDocs.length === 0) {
                 requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No active requests</p>';
                 return;
             }
@@ -1979,13 +2022,15 @@
                 
                 requestElement.innerHTML = `
                     <div class="request-icon">
-                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}"></i>
+                        <i class="fas ${icons[request.serviceType] || 'fa-bell'}" style="font-size: 1.2rem; color: #ff9800;"></i>
                     </div>
                     <div class="request-info">
-                        <h4>${getServiceTypeName(request.serviceType)}</h4>
-                        <p>Status: <span class="request-status">${request.status === 'in_progress' ? 'In Progress' : 'Pending'}</span></p>
-                        ${request.message ? `<p style="font-size: 0.9rem; color: #666; margin-top: 5px;">${request.message}</p>` : ''}
-                        ${request.assignedTo ? `<p style="font-size: 0.9rem; color: var(--primary-color, #2196F3); margin-top: 5px;"><i class="fas fa-user-check"></i> ${request.assignedTo}</p>` : ''}
+                        <h4 style="margin: 0 0 2px 0;">${getServiceTypeName(request.serviceType)}</h4>
+                        <p style="margin: 0; font-size: 0.85rem; color: #666;">
+                            Status: <span style="color: ${request.status === 'in_progress' ? '#2196F3' : '#ff9800'};">${request.status === 'in_progress' ? 'In Progress' : 'Pending'}</span>
+                        </p>
+                        ${request.message ? `<p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666;">${request.message}</p>` : ''}
+                        ${request.assignedTo ? `<p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #2196F3;"><i class="fas fa-user-check"></i> ${request.assignedTo}</p>` : ''}
                     </div>
                 `;
                 requestsList.appendChild(requestElement);
@@ -1995,7 +2040,7 @@
         function renderPublicRequests(requestDocs) {
             const requestsList = document.getElementById('publicRequests');
             
-            if (requestDocs.length === 0) {
+            if (!requestDocs || requestDocs.length === 0) {
                 requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
                 return;
             }
@@ -2015,23 +2060,34 @@
                     custom: '📝 Custom Request'
                 };
                 
-                const timeAgo = request.createdAt ? formatTimeAgo(request.createdAt.toDate()) : 'Just now';
+                let timeAgo = 'Just now';
+                if (request.createdAt && request.createdAt.toDate) {
+                    const date = request.createdAt.toDate();
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    
+                    if (diffMins < 1) timeAgo = 'Just now';
+                    else if (diffMins < 60) timeAgo = `${diffMins} min ago`;
+                    else if (diffMins < 1440) timeAgo = `${Math.floor(diffMins / 60)} hr ago`;
+                    else timeAgo = `${Math.floor(diffMins / 1440)} days ago`;
+                }
                 
                 requestElement.innerHTML = `
-                    <div class="public-request-header">
-                        <span class="public-request-from">Table ${request.tableNumber}</span>
-                        <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
+                    <div class="public-request-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span class="public-request-from" style="font-weight: bold; color: #2196F3;">Table ${request.tableNumber}</span>
+                        <span class="public-request-type" style="background: #2196F3; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${requestTypes[request.requestType] || request.requestType}</span>
                     </div>
-                    <div class="public-request-message">
+                    <div class="public-request-message" style="margin-bottom: 0.5rem; font-size: 0.95rem;">
                         ${request.message}
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                         <span style="font-size: 0.8rem; color: #666;">${timeAgo}</span>
-                        <div class="public-request-actions">
-                            <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
+                        <div class="public-request-actions" style="display: flex; gap: 0.5rem;">
+                            <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">
                                 Accept
                             </button>
-                            <button class="btn-ignore" onclick="this.closest('.public-request-card').remove()">
+                            <button class="btn-ignore" onclick="this.closest('.public-request-card').remove()" style="background: #f0f0f0; color: #666; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">
                                 Ignore
                             </button>
                         </div>
@@ -2053,27 +2109,6 @@
                 specific_staff: 'Staff Call'
             };
             return names[serviceType] || serviceType;
-        }
-
-        function formatTime(timestamp) {
-            if (!timestamp) return '';
-            const date = timestamp.toDate();
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function formatTimeAgo(date) {
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins} min ago`;
-            
-            const diffHours = Math.floor(diffMins / 60);
-            if (diffHours < 24) return `${diffHours} hr ago`;
-            
-            const diffDays = Math.floor(diffHours / 24);
-            return `${diffDays} days ago`;
         }
 
         // Modal Controls
@@ -2118,6 +2153,21 @@
             notification.innerHTML = `
                 <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
                 <span>${message}</span>
+            `;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
             `;
             document.body.appendChild(notification);
             
