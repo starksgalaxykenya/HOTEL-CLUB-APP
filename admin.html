@@ -905,40 +905,45 @@
         </div>
     </div>
 
-    <!-- Add Staff Modal -->
-    <div class="modal" id="addStaffModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add Staff Member</h2>
-                <button class="close-modal" onclick="closeAddStaffModal()">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="staffNameInput">Full Name</label>
-                <input type="text" id="staffNameInput" required>
-            </div>
-            <div class="form-group">
-                <label for="staffRole">Role</label>
-                <select id="staffRole">
-                    <option value="waiter">Waiter</option>
-                    <option value="waitress">Waitress</option>
-                    <option value="bartender">Bartender</option>
-                    <option value="manager">Manager</option>
-                    <option value="security">Security</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="staffUsername">Username</label>
-                <input type="text" id="staffUsername" required>
-            </div>
-            <div class="form-group">
-                <label for="staffPassword">Password</label>
-                <input type="password" id="staffPassword" required>
-            </div>
-            <button class="btn btn-submit" onclick="addStaffMember()">
-                <i class="fas fa-plus"></i> Add Staff
-            </button>
+    <!-- Add Staff Modal - Add waiterId field -->
+<div class="modal" id="addStaffModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Staff Member</h2>
+            <button class="close-modal" onclick="closeAddStaffModal()">&times;</button>
         </div>
+        <div class="form-group">
+            <label for="staffNameInput">Full Name</label>
+            <input type="text" id="staffNameInput" required>
+        </div>
+        <div class="form-group">
+            <label for="staffRole">Role</label>
+            <select id="staffRole">
+                <option value="waiter">Waiter</option>
+                <option value="waitress">Waitress</option>
+                <option value="bartender">Bartender</option>
+                <option value="manager">Manager</option>
+                <option value="security">Security</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="staffWaiterId">4-digit Waiter ID</label>
+            <input type="text" id="staffWaiterId" maxlength="4" pattern="\d*" inputmode="numeric" placeholder="1234" required>
+            <small style="color: #666;">Enter a unique 4-digit number for waiter login</small>
+        </div>
+        <div class="form-group">
+            <label for="staffUsername">Username</label>
+            <input type="text" id="staffUsername" required>
+        </div>
+        <div class="form-group">
+            <label for="staffPassword">Password</label>
+            <input type="password" id="staffPassword" required>
+        </div>
+        <button class="btn btn-submit" onclick="addStaffMember()">
+            <i class="fas fa-plus"></i> Add Staff
+        </button>
     </div>
+</div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -1166,38 +1171,39 @@
         }
 
         async function loadAdminStaff() {
-            try {
-                const staffSnapshot = await staffRef.get();
-                const staffTable = document.getElementById('adminStaffList');
-                staffTable.innerHTML = '';
-                
-                staffSnapshot.docs.forEach(doc => {
-                    const staff = doc.data();
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${staff.name}</td>
-                        <td>${staff.role}</td>
-                        <td>${staff.username}</td>
-                        <td>
-                            <span class="status-badge active">
-                                Active
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn-edit" onclick="editStaff('${doc.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-delete" onclick="deleteStaff('${doc.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    staffTable.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Error loading staff:', error);
-            }
-        }
+    try {
+        const staffSnapshot = await staffRef.get();
+        const staffTable = document.getElementById('adminStaffList');
+        staffTable.innerHTML = '';
+        
+        staffSnapshot.docs.forEach(doc => {
+            const staff = doc.data();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${staff.name}</td>
+                <td>${staff.role}</td>
+                <td><strong>${staff.waiterId || 'N/A'}</strong></td>
+                <td>${staff.username}</td>
+                <td>
+                    <span class="status-badge active">
+                        Active
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-edit" onclick="editStaff('${doc.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" onclick="deleteStaff('${doc.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            staffTable.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading staff:', error);
+    }
+}
 
         function openAddItemModal() {
             document.getElementById('addItemModal').classList.add('active');
@@ -1253,29 +1259,39 @@
         }
 
         async function addStaffMember() {
-            const staff = {
-                name: document.getElementById('staffNameInput').value,
-                role: document.getElementById('staffRole').value,
-                username: document.getElementById('staffUsername').value,
-                password: document.getElementById('staffPassword').value,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            if (!staff.name || !staff.username || !staff.password) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            try {
-                await staffRef.add(staff);
-                showNotification('Staff member added successfully!');
-                closeAddStaffModal();
-                loadAdminStaff();
-            } catch (error) {
-                console.error('Error adding staff member:', error);
-                showNotification('Failed to add staff member', 'error');
-            }
-        }
+    const waiterId = document.getElementById('staffWaiterId').value;
+    
+    // Check if waiter ID is unique
+    const existingStaff = await staffRef.where('waiterId', '==', waiterId).get();
+    if (!existingStaff.empty) {
+        showNotification('Waiter ID must be unique', 'error');
+        return;
+    }
+    
+    const staff = {
+        name: document.getElementById('staffNameInput').value,
+        role: document.getElementById('staffRole').value,
+        waiterId: waiterId,
+        username: document.getElementById('staffUsername').value,
+        password: document.getElementById('staffPassword').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    if (!staff.name || !staff.waiterId || !staff.username || !staff.password) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    try {
+        await staffRef.add(staff);
+        showNotification('Staff member added successfully!');
+        closeAddStaffModal();
+        loadAdminStaff();
+    } catch (error) {
+        console.error('Error adding staff member:', error);
+        showNotification('Failed to add staff member', 'error');
+    }
+}
 
         async function saveInstitutionSettings() {
             const name = document.getElementById('institutionNameInput').value;
