@@ -1724,39 +1724,51 @@
         }
 
         async function sendPublicRequest() {
-            const type = document.getElementById('publicRequestType').value;
-            const game = document.getElementById('publicRequestGame').value;
-            const message = document.getElementById('publicRequestMessage').value.trim();
+    const type = document.getElementById('publicRequestType').value;
+    const game = document.getElementById('publicRequestGame').value;
+    const message = document.getElementById('publicRequestMessage').value.trim();
 
-            if (!message && type !== 'game') {
-                showNotification('Please enter a message', 'error');
-                return;
-            }
+    if (!message && type !== 'game') {
+        showNotification('Please enter a message', 'error');
+        return;
+    }
 
-            let requestMessage = message;
-            if (type === 'game') {
-                requestMessage = `Looking for someone to play ${game}! ${message}`;
-            }
+    let requestMessage = message;
+    let requestType = type;
+    let gameType = null;
+    
+    if (type === 'game') {
+        requestType = 'game';
+        gameType = game;
+        requestMessage = `🎮 Looking for someone to play ${game}! ${message}`;
+    } else if (type === 'chat') {
+        requestMessage = `💬 ${message}`;
+    } else if (type === 'drink') {
+        requestMessage = `🍹 ${message}`;
+    } else if (type === 'meal') {
+        requestMessage = `🍽️ ${message}`;
+    }
 
-            const publicRequest = {
-                tableNumber: currentTable,
-                requestType: type,
-                gameType: type === 'game' ? game : null,
-                message: requestMessage,
-                status: 'active',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                acceptedBy: null
-            };
+    const publicRequest = {
+        tableNumber: currentTable,
+        requestType: requestType,
+        gameType: gameType,
+        message: requestMessage,
+        status: 'active',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        acceptedBy: null,
+        acceptedAt: null
+    };
 
-            try {
-                await publicRequestsRef.add(publicRequest);
-                showNotification('Public request broadcasted!');
-                closePublicRequestModal();
-            } catch (error) {
-                console.error('Error sending public request:', error);
-                showNotification('Failed to send public request', 'error');
-            }
-        }
+    try {
+        await publicRequestsRef.add(publicRequest);
+        showNotification('Public request broadcasted!');
+        closePublicRequestModal();
+    } catch (error) {
+        console.error('Error sending public request:', error);
+        showNotification('Failed to send public request', 'error');
+    }
+}
 
         async function acceptPublicRequest(requestId) {
             try {
@@ -1804,54 +1816,61 @@
         }
 
         function renderCurrentOrders(orderDocs) {
-            const ordersList = document.getElementById('currentOrders');
-            
-            if (orderDocs.length === 0) {
-                ordersList.innerHTML = `
-                    <div class="empty-orders">
-                        <i class="fas fa-clipboard-list"></i>
-                        <p>No active orders</p>
-                    </div>
-                `;
-                return;
-            }
+    const ordersList = document.getElementById('currentOrders');
+    
+    if (orderDocs.length === 0) {
+        ordersList.innerHTML = `
+            <div class="empty-orders">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No active orders</p>
+            </div>
+        `;
+        return;
+    }
 
-            ordersList.innerHTML = '';
-            
-            orderDocs.forEach(doc => {
-                const order = doc.data();
-                const orderCard = document.createElement('div');
-                orderCard.className = 'order-card';
-                
-                const itemsList = order.items.map(item => 
-                    `${item.name} × ${item.quantity}${item.specification ? ` (${item.specification})` : ''}`
-                ).join(', ');
-                
-                const statusColors = {
-                    pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
-                    preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
-                    ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
-                };
-                
-                const status = statusColors[order.status] || statusColors.pending;
-                
-                orderCard.innerHTML = `
-                    <div class="order-header">
-                        <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
-                            ${status.text}
-                        </span>
-                        <span class="order-time">${formatTime(order.createdAt)}</span>
-                    </div>
-                    <p class="order-items">${itemsList}</p>
-                    <div class="order-footer">
-                        <span class="order-total">$${order.total.toFixed(2)}</span>
-                        ${order.estimatedTime ? 
-                          `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
-                    </div>
-                `;
-                ordersList.appendChild(orderCard);
-            });
-        }
+    ordersList.innerHTML = '';
+    
+    orderDocs.forEach(doc => {
+        const order = doc.data();
+        const orderCard = document.createElement('div');
+        orderCard.className = 'order-card';
+        
+        const itemsList = order.items.map(item => 
+            `${item.name} × ${item.quantity}${item.specification ? ` (${item.specification})` : ''}`
+        ).join(', ');
+        
+        const statusColors = {
+            pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
+            preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
+            ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
+        };
+        
+        const status = statusColors[order.status] || statusColors.pending;
+        
+        // Add waiter info if order is claimed
+        const waiterInfo = order.assignedWaiter ? 
+            `<div style="font-size: 0.85rem; color: var(--primary-color); margin-top: 0.5rem;">
+                <i class="fas fa-user-check"></i> Assigned to: ${order.assignedWaiter}
+            </div>` : '';
+        
+        orderCard.innerHTML = `
+            <div class="order-header">
+                <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
+                    ${status.text}
+                </span>
+                <span class="order-time">${formatTime(order.createdAt)}</span>
+            </div>
+            <p class="order-items">${itemsList}</p>
+            ${waiterInfo}
+            <div class="order-footer">
+                <span class="order-total">$${order.total.toFixed(2)}</span>
+                ${order.estimatedTime ? 
+                  `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
+            </div>
+        `;
+        ordersList.appendChild(orderCard);
+    });
+}
 
         function renderActiveRequests(requestDocs) {
             const requestsList = document.getElementById('activeRequests');
@@ -1895,49 +1914,68 @@
         }
 
         function renderPublicRequests(requestDocs) {
-            const requestsList = document.getElementById('publicRequests');
-            
-            if (requestDocs.length === 0) {
-                requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
-                return;
-            }
+    const requestsList = document.getElementById('publicRequests');
+    
+    if (requestDocs.length === 0) {
+        requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
+        return;
+    }
 
-            requestsList.innerHTML = '';
-            
-            requestDocs.forEach(doc => {
-                const request = doc.data();
-                const requestElement = document.createElement('div');
-                requestElement.className = 'public-request-card';
-                
-                const requestTypes = {
-                    game: 'Game Invite',
-                    chat: 'Chat Invite',
-                    drink: 'Drink Invite',
-                    meal: 'Meal Invite',
-                    custom: 'Custom Request'
-                };
-                
-                requestElement.innerHTML = `
-                    <div class="public-request-header">
-                        <span class="public-request-from">Table ${request.tableNumber}</span>
-                        <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
-                    </div>
-                    <div class="public-request-message">
-                        ${request.message}
-                    </div>
-                    <div class="public-request-actions">
-                        <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
-                            Accept
-                        </button>
-                        <button class="btn-ignore" onclick="this.parentElement.parentElement.remove()">
-                            Ignore
-                        </button>
-                    </div>
-                `;
-                requestsList.appendChild(requestElement);
-            });
-        }
+    requestsList.innerHTML = '';
+    
+    requestDocs.forEach(doc => {
+        const request = doc.data();
+        const requestElement = document.createElement('div');
+        requestElement.className = 'public-request-card';
+        
+        const requestTypes = {
+            game: '🎮 Game Invite',
+            chat: '💬 Chat Invite',
+            drink: '🍹 Drink Invite',
+            meal: '🍽️ Meal Invite',
+            custom: '📝 Custom Request'
+        };
+        
+        const timeAgo = request.createdAt ? formatTimeAgo(request.createdAt.toDate()) : 'Just now';
+        
+        requestElement.innerHTML = `
+            <div class="public-request-header">
+                <span class="public-request-from">Table ${request.tableNumber}</span>
+                <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
+            </div>
+            <div class="public-request-message">
+                ${request.message}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span style="font-size: 0.8rem; color: #666;">${timeAgo}</span>
+                <div class="public-request-actions">
+                    <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
+                        Accept
+                    </button>
+                    <button class="btn-ignore" onclick="this.closest('.public-request-card').remove()">
+                        Ignore
+                    </button>
+                </div>
+            </div>
+        `;
+        requestsList.appendChild(requestElement);
+    });
+}
 
+        function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hr ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} days ago`;
+}
         function getServiceTypeName(serviceType) {
             const names = {
                 waiter: 'Waiter Request',
