@@ -184,6 +184,23 @@
             cursor: pointer;
             transition: all 0.3s;
             border-left: 4px solid var(--primary-color, #2196F3);
+            position: relative;
+        }
+
+        .waiter-order-card.locked {
+            border-left-color: #ff9800;
+            background: #fff8e1;
+        }
+
+        .waiter-order-card.locked::before {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ff9800;
+            font-size: 1.2rem;
         }
 
         .waiter-order-card:hover,
@@ -231,6 +248,18 @@
         .order-status-badge.ready {
             background: rgba(76, 175, 80, 0.1);
             color: var(--accent-color, #4CAF50);
+        }
+
+        .waiter-badge {
+            background: #e3f2fd;
+            color: var(--primary-color, #2196F3);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 0.5rem;
         }
 
         .order-items-preview {
@@ -373,6 +402,13 @@
             border-top: 2px solid #eee;
         }
 
+        .waiter-id-input {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            font-weight: bold;
+        }
+
         /* Notifications */
         .notification {
             position: fixed;
@@ -495,10 +531,9 @@
     <div id="waiterLanding" class="waiter-landing">
         <div class="waiter-login">
             <h1><i class="fas fa-concierge-bell"></i> Waiter Login</h1>
-            <p>Enter credentials to access waiter dashboard</p>
+            <p>Enter your 4-digit ID to access dashboard</p>
             <div class="form-group">
-                <input type="text" id="waiterUsername" placeholder="Username" style="margin-bottom: 1rem;">
-                <input type="password" id="waiterPassword" placeholder="Password">
+                <input type="password" id="waiterId" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
             </div>
             <button class="btn btn-primary" onclick="loginAsWaiter()" style="width: 100%;">
                 <i class="fas fa-sign-in-alt"></i> Login
@@ -513,6 +548,7 @@
                 <h1><i class="fas fa-concierge-bell"></i> Waiter Dashboard</h1>
                 <div class="waiter-info">
                     <span id="currentWaiterName">Waiter</span>
+                    <span id="currentWaiterId"></span>
                     <span class="order-status-badge active">Online</span>
                 </div>
             </div>
@@ -538,11 +574,14 @@
                 <button class="tab-btn" onclick="showWaiterTab('tables')">
                     <i class="fas fa-chair"></i> Tables
                 </button>
+                <button class="tab-btn" onclick="showWaiterTab('myOrders')">
+                    <i class="fas fa-user-check"></i> My Orders
+                </button>
             </nav>
 
             <section id="ordersTab" class="waiter-tab active">
                 <div class="section-header">
-                    <h2>Active Orders</h2>
+                    <h2>Available Orders</h2>
                     <select id="orderFilter" onchange="filterOrders()">
                         <option value="all">All Orders</option>
                         <option value="pending">Pending</option>
@@ -577,6 +616,15 @@
                     <!-- Tables will be loaded here -->
                 </div>
             </section>
+
+            <section id="myOrdersTab" class="waiter-tab">
+                <div class="section-header">
+                    <h2>My Assigned Orders</h2>
+                </div>
+                <div class="orders-grid" id="myOrdersGrid">
+                    <!-- My orders will be loaded here -->
+                </div>
+            </section>
         </main>
     </div>
 
@@ -586,6 +634,9 @@
             <div class="modal-header">
                 <h2>Order Details - Table <span id="modalTableNumber"></span></h2>
                 <button class="close-modal" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div id="orderLockInfo" class="waiter-badge" style="margin-bottom: 1rem; padding: 10px; background: #fff3e0;">
+                <!-- Lock info will be shown here -->
             </div>
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
                 <div class="order-items-list" id="modalOrderItems" style="max-height: 400px; overflow-y: auto;">
@@ -605,8 +656,12 @@
                         <label>Estimated Time (minutes)</label>
                         <input type="number" id="estimatedTime" min="1" max="120" value="15">
                     </div>
-                    <button class="btn btn-primary" onclick="updateOrderStatus()" style="width: 100%;">
-                        <i class="fas fa-check"></i> Update Status
+                    <div id="waiverIdSection" class="form-group">
+                        <label>Enter Your 4-digit ID to Claim Order</label>
+                        <input type="password" id="claimWaiterId" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
+                    </div>
+                    <button class="btn btn-primary" onclick="claimAndUpdateOrder()" style="width: 100%;" id="claimUpdateButton">
+                        <i class="fas fa-check"></i> Claim & Update Status
                     </button>
                 </div>
             </div>
@@ -630,6 +685,10 @@
                     <select id="waiterNameSelect">
                         <!-- Staff names will be loaded here -->
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="waiterIdResponse">Your 4-digit ID</label>
+                    <input type="password" id="waiterIdResponse" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
                 </div>
                 <div class="form-group">
                     <label for="waiterResponse">Response Message (optional)</label>
@@ -675,6 +734,7 @@
         let currentOrderId = null;
         let currentRequestId = null;
         let currentStaffList = [];
+        let currentWaiter = null;
         let institutionSettings = null;
         let themeSettings = null;
 
@@ -712,26 +772,46 @@
         }
 
         // Waiter Functions
-        function loginAsWaiter() {
-            const username = document.getElementById('waiterUsername').value;
-            const password = document.getElementById('waiterPassword').value;
+        async function loginAsWaiter() {
+            const waiterId = document.getElementById('waiterId').value;
             
-            // Simple authentication (in production, use proper auth)
-            if (username && password) {
+            if (!waiterId || waiterId.length !== 4) {
+                showNotification('Please enter a valid 4-digit ID', 'error');
+                return;
+            }
+            
+            try {
+                // Find staff with matching ID
+                const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+                
+                if (staffSnapshot.empty) {
+                    showNotification('Invalid waiter ID', 'error');
+                    return;
+                }
+                
+                const staffDoc = staffSnapshot.docs[0];
+                currentWaiter = {
+                    id: staffDoc.id,
+                    ...staffDoc.data()
+                };
+                
                 document.getElementById('waiterLanding').style.display = 'none';
                 document.getElementById('waiterPage').classList.add('active');
-                document.getElementById('currentWaiterName').textContent = username;
+                document.getElementById('currentWaiterName').textContent = currentWaiter.name;
+                document.getElementById('currentWaiterId').textContent = `(ID: ${currentWaiter.waiterId})`;
+                
                 initializeWaiterApp();
-            } else {
-                showNotification('Please enter username and password', 'error');
+            } catch (error) {
+                console.error('Error logging in:', error);
+                showNotification('Login failed', 'error');
             }
         }
 
         function logoutWaiter() {
+            currentWaiter = null;
             document.getElementById('waiterPage').classList.remove('active');
             document.getElementById('waiterLanding').style.display = 'flex';
-            document.getElementById('waiterUsername').value = '';
-            document.getElementById('waiterPassword').value = '';
+            document.getElementById('waiterId').value = '';
         }
 
         function initializeWaiterApp() {
@@ -739,6 +819,7 @@
             loadWaiterRequests();
             loadTables();
             loadStaffList();
+            loadMyOrders();
             loadInstitutionSettings();
             loadThemeSettings();
             setupWaiterRealtimeListeners();
@@ -763,8 +844,14 @@
             
             orderDocs.forEach(doc => {
                 const order = doc.data();
+                
+                // Don't show locked orders that belong to other waiters
+                if (order.lockedTo && order.lockedTo !== currentWaiter?.waiterId) {
+                    return;
+                }
+                
                 const orderCard = document.createElement('div');
-                orderCard.className = `waiter-order-card ${order.status}`;
+                orderCard.className = `waiter-order-card ${order.status} ${order.lockedTo ? 'locked' : ''}`;
                 orderCard.onclick = () => openOrderDetail(doc.id, order);
                 
                 const itemsPreview = order.items?.slice(0, 2).map(item => 
@@ -774,6 +861,68 @@
                 const moreItems = order.items?.length > 2 ? 
                     ` +${order.items.length - 2} more items` : '';
                 
+                let waiterInfo = '';
+                if (order.assignedWaiter) {
+                    waiterInfo = `<div class="waiter-badge"><i class="fas fa-user-check"></i> ${order.assignedWaiter}</div>`;
+                }
+                
+                orderCard.innerHTML = `
+                    <div class="order-card-header">
+                        <h3>Table ${order.tableNumber}</h3>
+                        <span class="order-status-badge ${order.status}">
+                            ${order.status}
+                        </span>
+                    </div>
+                    ${waiterInfo}
+                    <div class="order-items-preview">
+                        ${itemsPreview}${moreItems}
+                    </div>
+                    <div class="order-card-footer">
+                        <div class="order-total">$${order.total?.toFixed(2) || '0.00'}</div>
+                        <div class="order-time">
+                            ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : 'Just now'}
+                        </div>
+                    </div>
+                `;
+                ordersGrid.appendChild(orderCard);
+            });
+        }
+
+        async function loadMyOrders() {
+            if (!currentWaiter) return;
+            
+            try {
+                const ordersSnapshot = await ordersRef
+                    .where('lockedTo', '==', currentWaiter.waiterId)
+                    .where('status', 'in', ['pending', 'preparing', 'ready'])
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                renderMyOrders(ordersSnapshot.docs);
+            } catch (error) {
+                console.error('Error loading my orders:', error);
+            }
+        }
+
+        function renderMyOrders(orderDocs) {
+            const ordersGrid = document.getElementById('myOrdersGrid');
+            ordersGrid.innerHTML = '';
+            
+            if (orderDocs.length === 0) {
+                ordersGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: #666;">No assigned orders</div>';
+                return;
+            }
+            
+            orderDocs.forEach(doc => {
+                const order = doc.data();
+                const orderCard = document.createElement('div');
+                orderCard.className = `waiter-order-card ${order.status}`;
+                orderCard.onclick = () => openOrderDetail(doc.id, order);
+                
+                const itemsPreview = order.items?.slice(0, 2).map(item => 
+                    `${item.name} × ${item.quantity}`
+                ).join(', ');
+                
                 orderCard.innerHTML = `
                     <div class="order-card-header">
                         <h3>Table ${order.tableNumber}</h3>
@@ -782,12 +931,12 @@
                         </span>
                     </div>
                     <div class="order-items-preview">
-                        ${itemsPreview}${moreItems}
+                        ${itemsPreview}
                     </div>
                     <div class="order-card-footer">
                         <div class="order-total">$${order.total?.toFixed(2) || '0.00'}</div>
                         <div class="order-time">
-                            ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : 'Just now'}
+                            ${order.createdAt ? formatTimeAgo(order.createdAt.toDate()) : ''}
                         </div>
                     </div>
                 `;
@@ -840,6 +989,7 @@
                         </div>
                     </div>
                     ${request.message ? `<p style="color: #666; font-size: 0.95rem;">${request.message}</p>` : ''}
+                    ${request.assignedTo ? `<div class="waiter-badge"><i class="fas fa-user-check"></i> ${request.assignedTo}</div>` : ''}
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
                         <span class="order-status-badge ${request.status}">
                             ${request.status === 'in_progress' ? 'In Progress' : 'Pending'}
@@ -864,22 +1014,35 @@
                 .where('status', 'in', ['pending', 'preparing', 'ready'])
                 .get();
             
-            const tablesSet = new Set();
+            const tablesMap = new Map();
             ordersSnapshot.docs.forEach(doc => {
-                tablesSet.add(doc.data().tableNumber);
+                const order = doc.data();
+                if (!tablesMap.has(order.tableNumber)) {
+                    tablesMap.set(order.tableNumber, []);
+                }
+                tablesMap.get(order.tableNumber).push(order);
             });
             
             const tablesGrid = document.getElementById('tablesGrid');
             tablesGrid.innerHTML = '';
             
-            Array.from(tablesSet).forEach(tableNumber => {
+            if (tablesMap.size === 0) {
+                tablesGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: #666;">No active tables</div>';
+                return;
+            }
+            
+            Array.from(tablesMap.entries()).forEach(([tableNumber, orders]) => {
+                const activeOrders = orders.length;
+                const totalAmount = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+                
                 const tableCard = document.createElement('div');
                 tableCard.className = 'waiter-order-card';
                 tableCard.innerHTML = `
                     <div style="text-align: center;">
                         <i class="fas fa-chair" style="font-size: 3rem; color: var(--primary-color, #2196F3); margin-bottom: 1rem;"></i>
                         <h2 style="margin: 0;">Table ${tableNumber}</h2>
-                        <p style="color: #666; margin-top: 0.5rem;">Active</p>
+                        <p style="color: #666; margin-top: 0.5rem;">${activeOrders} active order(s)</p>
+                        <p style="color: var(--accent-color); font-weight: bold;">$${totalAmount.toFixed(2)}</p>
                     </div>
                 `;
                 tablesGrid.appendChild(tableCard);
@@ -904,6 +1067,18 @@
             document.getElementById('modalTableNumber').textContent = order.tableNumber;
             document.getElementById('updateOrderStatus').value = order.status;
             document.getElementById('estimatedTime').value = order.estimatedTime || 15;
+            
+            // Show lock info
+            const lockInfo = document.getElementById('orderLockInfo');
+            if (order.lockedTo) {
+                lockInfo.innerHTML = `<i class="fas fa-lock"></i> This order is locked to Waiter ID: ${order.lockedTo} (${order.assignedWaiter || 'Unknown'})`;
+                document.getElementById('waiverIdSection').style.display = 'none';
+                document.getElementById('claimUpdateButton').innerHTML = '<i class="fas fa-check"></i> Update Status';
+            } else {
+                lockInfo.innerHTML = '<i class="fas fa-unlock"></i> This order is available to claim';
+                document.getElementById('waiverIdSection').style.display = 'block';
+                document.getElementById('claimUpdateButton').innerHTML = '<i class="fas fa-check"></i> Claim & Update Status';
+            }
             
             const orderItems = document.getElementById('modalOrderItems');
             orderItems.innerHTML = '';
@@ -932,19 +1107,64 @@
             document.getElementById('orderDetailModal').classList.add('active');
         }
 
-        async function updateOrderStatus() {
+        async function claimAndUpdateOrder() {
             const newStatus = document.getElementById('updateOrderStatus').value;
             const estimatedTime = document.getElementById('estimatedTime').value;
             
             try {
-                await ordersRef.doc(currentOrderId).update({
-                    status: newStatus,
-                    estimatedTime: parseInt(estimatedTime),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                const orderDoc = await ordersRef.doc(currentOrderId).get();
+                const order = orderDoc.data();
                 
-                showNotification('Order status updated!');
+                // If order is not locked, verify waiter ID
+                if (!order.lockedTo) {
+                    const waiterId = document.getElementById('claimWaiterId').value;
+                    
+                    if (!waiterId || waiterId.length !== 4) {
+                        showNotification('Please enter your 4-digit ID to claim this order', 'error');
+                        return;
+                    }
+                    
+                    // Verify waiter ID
+                    const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+                    
+                    if (staffSnapshot.empty) {
+                        showNotification('Invalid waiter ID', 'error');
+                        return;
+                    }
+                    
+                    const staffDoc = staffSnapshot.docs[0];
+                    const waiterName = staffDoc.data().name;
+                    
+                    // Lock order to this waiter
+                    await ordersRef.doc(currentOrderId).update({
+                        status: newStatus,
+                        estimatedTime: parseInt(estimatedTime),
+                        lockedTo: waiterId,
+                        assignedWaiter: waiterName,
+                        claimedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    showNotification(`Order claimed by ${waiterName}!`);
+                } else {
+                    // If locked, check if current waiter owns it
+                    if (order.lockedTo !== currentWaiter?.waiterId) {
+                        showNotification('This order is locked to another waiter', 'error');
+                        return;
+                    }
+                    
+                    await ordersRef.doc(currentOrderId).update({
+                        status: newStatus,
+                        estimatedTime: parseInt(estimatedTime),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    showNotification('Order status updated!');
+                }
+                
                 closeOrderModal();
+                loadWaiterOrders();
+                loadMyOrders();
             } catch (error) {
                 console.error('Error updating order:', error);
                 showNotification('Failed to update order', 'error');
@@ -987,6 +1207,7 @@
 
         async function acceptRequest() {
             const waiterName = document.getElementById('waiterNameSelect').value;
+            const waiterId = document.getElementById('waiterIdResponse').value;
             const response = document.getElementById('waiterResponse').value;
             
             if (!waiterName) {
@@ -994,10 +1215,24 @@
                 return;
             }
             
+            if (!waiterId || waiterId.length !== 4) {
+                showNotification('Please enter your 4-digit ID', 'error');
+                return;
+            }
+            
+            // Verify waiter ID
+            const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+            
+            if (staffSnapshot.empty) {
+                showNotification('Invalid waiter ID', 'error');
+                return;
+            }
+            
             try {
                 await requestsRef.doc(currentRequestId).update({
                     status: 'in_progress',
                     assignedTo: waiterName,
+                    assignedId: waiterId,
                     waiterResponse: response || 'Waiter is on the way',
                     assignedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -1027,11 +1262,13 @@
 
         function closeOrderModal() {
             document.getElementById('orderDetailModal').classList.remove('active');
+            document.getElementById('claimWaiterId').value = '';
         }
 
         function closeRequestModal() {
             document.getElementById('requestDetailModal').classList.remove('active');
             document.getElementById('waiterNameSelect').value = '';
+            document.getElementById('waiterIdResponse').value = '';
             document.getElementById('waiterResponse').value = '';
         }
 
@@ -1045,13 +1282,20 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
+            
+            // Load tab-specific data
+            if (tabId === 'myOrders') {
+                loadMyOrders();
+            }
         }
 
         function setupWaiterRealtimeListeners() {
             ordersRef
                 .where('status', 'in', ['pending', 'preparing', 'ready'])
                 .onSnapshot(snapshot => {
-                    renderWaiterOrders(snapshot.docs);
+                    loadWaiterOrders();
+                    loadMyOrders();
+                    loadTables();
                 });
             
             requestsRef
