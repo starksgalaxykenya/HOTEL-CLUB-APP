@@ -109,6 +109,15 @@
             border: 3px solid white !important;
             border-radius: 10px !important;
             overflow: hidden !important;
+            background: #000;
+        }
+
+        #qr-reader__scan_region {
+            min-height: 250px;
+        }
+
+        #qr-reader__dashboard_section_csr span {
+            color: white !important;
         }
 
         .scanner-instructions {
@@ -550,7 +559,7 @@
 
         .public-request-card {
             background: #e8f5e9;
-            padding: 0.8rem;
+            padding: 1rem;
             margin-bottom: 0.5rem;
             border-radius: 8px;
             border-left: 4px solid var(--accent-color, #4CAF50);
@@ -993,7 +1002,8 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- Load Html5Qrcode library first -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <!-- Institution Header -->
@@ -1215,21 +1225,21 @@
             <div class="form-group">
                 <label for="publicRequestType">Request Type</label>
                 <select id="publicRequestType">
-                    <option value="game">Join a Game</option>
-                    <option value="chat">Invite to Chat</option>
-                    <option value="drink">Share a Drink</option>
-                    <option value="meal">Share a Meal</option>
-                    <option value="custom">Custom Message</option>
+                    <option value="game">🎮 Join a Game</option>
+                    <option value="chat">💬 Invite to Chat</option>
+                    <option value="drink">🍹 Share a Drink</option>
+                    <option value="meal">🍽️ Share a Meal</option>
+                    <option value="custom">📝 Custom Message</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="publicRequestGame">Game Type (if applicable)</label>
                 <select id="publicRequestGame">
-                    <option value="pool">Pool</option>
-                    <option value="darts">Darts</option>
-                    <option value="chess">Chess</option>
-                    <option value="cards">Cards</option>
-                    <option value="other">Other</option>
+                    <option value="Pool">🎱 Pool</option>
+                    <option value="Darts">🎯 Darts</option>
+                    <option value="Chess">♟️ Chess</option>
+                    <option value="Cards">🃏 Cards</option>
+                    <option value="Other">🎲 Other</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1280,11 +1290,30 @@
 
         // Initialize QR Scanner
         function initializeQRScanner() {
+            // Check if Html5Qrcode is loaded
+            if (typeof Html5Qrcode === 'undefined') {
+                console.error('Html5Qrcode library not loaded');
+                showNotification('QR Scanner library loading...', 'error');
+                return;
+            }
+
             const html5QrCode = new Html5Qrcode("qr-reader");
             
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 // Parse table number from QR code
-                const tableNumber = decodedText.split('table=')[1];
+                let tableNumber = null;
+                
+                // Try to extract table number from various QR code formats
+                if (decodedText.includes('table=')) {
+                    tableNumber = decodedText.split('table=')[1].split('&')[0];
+                } else if (decodedText.includes(',')) {
+                    // If QR contains coordinates or other data
+                    console.log('QR data:', decodedText);
+                } else {
+                    // Assume the QR code contains just the table number
+                    tableNumber = decodedText;
+                }
+                
                 if (tableNumber) {
                     document.getElementById('tableNumberInput').value = tableNumber;
                     showNotification('Table number scanned successfully!');
@@ -1295,10 +1324,16 @@
                     }).catch(err => {
                         console.error("Failed to stop scanner", err);
                     });
+                } else {
+                    showNotification('Invalid QR code. Please try again or enter manually.', 'error');
                 }
             };
             
-            const config = { fps: 10, qrbox: 250 };
+            const config = { 
+                fps: 10, 
+                qrbox: 250,
+                aspectRatio: 1.0
+            };
             
             // Start scanner
             html5QrCode.start(
@@ -1618,7 +1653,9 @@
                 total: totalAmount,
                 status: 'pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                estimatedTime: 15
+                estimatedTime: 15,
+                lockedTo: null,
+                assignedWaiter: null
             };
 
             try {
@@ -1643,7 +1680,8 @@
                 serviceType: serviceType,
                 status: 'pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                assignedTo: null
+                assignedTo: null,
+                assignedId: null
             };
 
             try {
@@ -1719,56 +1757,56 @@
         function closePublicRequestModal() {
             document.getElementById('publicRequestModal').classList.remove('active');
             document.getElementById('publicRequestType').value = 'game';
-            document.getElementById('publicRequestGame').value = 'pool';
+            document.getElementById('publicRequestGame').value = 'Pool';
             document.getElementById('publicRequestMessage').value = '';
         }
 
         async function sendPublicRequest() {
-    const type = document.getElementById('publicRequestType').value;
-    const game = document.getElementById('publicRequestGame').value;
-    const message = document.getElementById('publicRequestMessage').value.trim();
+            const type = document.getElementById('publicRequestType').value;
+            const game = document.getElementById('publicRequestGame').value;
+            const message = document.getElementById('publicRequestMessage').value.trim();
 
-    if (!message && type !== 'game') {
-        showNotification('Please enter a message', 'error');
-        return;
-    }
+            if (!message && type !== 'game') {
+                showNotification('Please enter a message', 'error');
+                return;
+            }
 
-    let requestMessage = message;
-    let requestType = type;
-    let gameType = null;
-    
-    if (type === 'game') {
-        requestType = 'game';
-        gameType = game;
-        requestMessage = `🎮 Looking for someone to play ${game}! ${message}`;
-    } else if (type === 'chat') {
-        requestMessage = `💬 ${message}`;
-    } else if (type === 'drink') {
-        requestMessage = `🍹 ${message}`;
-    } else if (type === 'meal') {
-        requestMessage = `🍽️ ${message}`;
-    }
+            let requestMessage = message;
+            let requestType = type;
+            let gameType = null;
+            
+            if (type === 'game') {
+                requestType = 'game';
+                gameType = game;
+                requestMessage = `🎮 Looking for someone to play ${game}! ${message}`;
+            } else if (type === 'chat') {
+                requestMessage = `💬 ${message}`;
+            } else if (type === 'drink') {
+                requestMessage = `🍹 ${message}`;
+            } else if (type === 'meal') {
+                requestMessage = `🍽️ ${message}`;
+            }
 
-    const publicRequest = {
-        tableNumber: currentTable,
-        requestType: requestType,
-        gameType: gameType,
-        message: requestMessage,
-        status: 'active',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        acceptedBy: null,
-        acceptedAt: null
-    };
+            const publicRequest = {
+                tableNumber: currentTable,
+                requestType: requestType,
+                gameType: gameType,
+                message: requestMessage,
+                status: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                acceptedBy: null,
+                acceptedAt: null
+            };
 
-    try {
-        await publicRequestsRef.add(publicRequest);
-        showNotification('Public request broadcasted!');
-        closePublicRequestModal();
-    } catch (error) {
-        console.error('Error sending public request:', error);
-        showNotification('Failed to send public request', 'error');
-    }
-}
+            try {
+                await publicRequestsRef.add(publicRequest);
+                showNotification('Public request broadcasted!');
+                closePublicRequestModal();
+            } catch (error) {
+                console.error('Error sending public request:', error);
+                showNotification('Failed to send public request', 'error');
+            }
+        }
 
         async function acceptPublicRequest(requestId) {
             try {
@@ -1816,61 +1854,61 @@
         }
 
         function renderCurrentOrders(orderDocs) {
-    const ordersList = document.getElementById('currentOrders');
-    
-    if (orderDocs.length === 0) {
-        ordersList.innerHTML = `
-            <div class="empty-orders">
-                <i class="fas fa-clipboard-list"></i>
-                <p>No active orders</p>
-            </div>
-        `;
-        return;
-    }
+            const ordersList = document.getElementById('currentOrders');
+            
+            if (orderDocs.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No active orders</p>
+                    </div>
+                `;
+                return;
+            }
 
-    ordersList.innerHTML = '';
-    
-    orderDocs.forEach(doc => {
-        const order = doc.data();
-        const orderCard = document.createElement('div');
-        orderCard.className = 'order-card';
-        
-        const itemsList = order.items.map(item => 
-            `${item.name} × ${item.quantity}${item.specification ? ` (${item.specification})` : ''}`
-        ).join(', ');
-        
-        const statusColors = {
-            pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
-            preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
-            ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
-        };
-        
-        const status = statusColors[order.status] || statusColors.pending;
-        
-        // Add waiter info if order is claimed
-        const waiterInfo = order.assignedWaiter ? 
-            `<div style="font-size: 0.85rem; color: var(--primary-color); margin-top: 0.5rem;">
-                <i class="fas fa-user-check"></i> Assigned to: ${order.assignedWaiter}
-            </div>` : '';
-        
-        orderCard.innerHTML = `
-            <div class="order-header">
-                <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
-                    ${status.text}
-                </span>
-                <span class="order-time">${formatTime(order.createdAt)}</span>
-            </div>
-            <p class="order-items">${itemsList}</p>
-            ${waiterInfo}
-            <div class="order-footer">
-                <span class="order-total">$${order.total.toFixed(2)}</span>
-                ${order.estimatedTime ? 
-                  `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
-            </div>
-        `;
-        ordersList.appendChild(orderCard);
-    });
-}
+            ordersList.innerHTML = '';
+            
+            orderDocs.forEach(doc => {
+                const order = doc.data();
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                const itemsList = order.items.map(item => 
+                    `${item.name} × ${item.quantity}${item.specification ? ` (${item.specification})` : ''}`
+                ).join(', ');
+                
+                const statusColors = {
+                    pending: { bg: '#fff3e0', color: '#ff9800', text: 'Pending' },
+                    preparing: { bg: '#e3f2fd', color: 'var(--primary-color, #2196F3)', text: 'Preparing' },
+                    ready: { bg: '#e8f5e8', color: 'var(--accent-color, #4CAF50)', text: 'Ready' }
+                };
+                
+                const status = statusColors[order.status] || statusColors.pending;
+                
+                // Add waiter info if order is claimed
+                const waiterInfo = order.assignedWaiter ? 
+                    `<div style="font-size: 0.85rem; color: var(--primary-color); margin-top: 0.5rem;">
+                        <i class="fas fa-user-check"></i> Assigned to: ${order.assignedWaiter}
+                    </div>` : '';
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-status" style="background: ${status.bg}; color: ${status.color}">
+                            ${status.text}
+                        </span>
+                        <span class="order-time">${formatTime(order.createdAt)}</span>
+                    </div>
+                    <p class="order-items">${itemsList}</p>
+                    ${waiterInfo}
+                    <div class="order-footer">
+                        <span class="order-total">$${order.total.toFixed(2)}</span>
+                        ${order.estimatedTime ? 
+                          `<span class="order-eta">ETA: ${order.estimatedTime} min</span>` : ''}
+                    </div>
+                `;
+                ordersList.appendChild(orderCard);
+            });
+        }
 
         function renderActiveRequests(requestDocs) {
             const requestsList = document.getElementById('activeRequests');
@@ -1906,7 +1944,7 @@
                         <h4>${getServiceTypeName(request.serviceType)}</h4>
                         <p>Status: <span class="request-status">${request.status === 'in_progress' ? 'In Progress' : 'Pending'}</span></p>
                         ${request.message ? `<p style="font-size: 0.9rem; color: #666; margin-top: 5px;">${request.message}</p>` : ''}
-                        ${request.waiterResponse ? `<p style="font-size: 0.9rem; color: var(--primary-color, #2196F3); margin-top: 5px; font-style: italic;">${request.waiterResponse}</p>` : ''}
+                        ${request.assignedTo ? `<p style="font-size: 0.9rem; color: var(--primary-color, #2196F3); margin-top: 5px;"><i class="fas fa-user-check"></i> ${request.assignedTo}</p>` : ''}
                     </div>
                 `;
                 requestsList.appendChild(requestElement);
@@ -1914,68 +1952,54 @@
         }
 
         function renderPublicRequests(requestDocs) {
-    const requestsList = document.getElementById('publicRequests');
-    
-    if (requestDocs.length === 0) {
-        requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
-        return;
-    }
+            const requestsList = document.getElementById('publicRequests');
+            
+            if (requestDocs.length === 0) {
+                requestsList.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No public requests</p>';
+                return;
+            }
 
-    requestsList.innerHTML = '';
-    
-    requestDocs.forEach(doc => {
-        const request = doc.data();
-        const requestElement = document.createElement('div');
-        requestElement.className = 'public-request-card';
-        
-        const requestTypes = {
-            game: '🎮 Game Invite',
-            chat: '💬 Chat Invite',
-            drink: '🍹 Drink Invite',
-            meal: '🍽️ Meal Invite',
-            custom: '📝 Custom Request'
-        };
-        
-        const timeAgo = request.createdAt ? formatTimeAgo(request.createdAt.toDate()) : 'Just now';
-        
-        requestElement.innerHTML = `
-            <div class="public-request-header">
-                <span class="public-request-from">Table ${request.tableNumber}</span>
-                <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
-            </div>
-            <div class="public-request-message">
-                ${request.message}
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                <span style="font-size: 0.8rem; color: #666;">${timeAgo}</span>
-                <div class="public-request-actions">
-                    <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
-                        Accept
-                    </button>
-                    <button class="btn-ignore" onclick="this.closest('.public-request-card').remove()">
-                        Ignore
-                    </button>
-                </div>
-            </div>
-        `;
-        requestsList.appendChild(requestElement);
-    });
-}
+            requestsList.innerHTML = '';
+            
+            requestDocs.forEach(doc => {
+                const request = doc.data();
+                const requestElement = document.createElement('div');
+                requestElement.className = 'public-request-card';
+                
+                const requestTypes = {
+                    game: '🎮 Game Invite',
+                    chat: '💬 Chat Invite',
+                    drink: '🍹 Drink Invite',
+                    meal: '🍽️ Meal Invite',
+                    custom: '📝 Custom Request'
+                };
+                
+                const timeAgo = request.createdAt ? formatTimeAgo(request.createdAt.toDate()) : 'Just now';
+                
+                requestElement.innerHTML = `
+                    <div class="public-request-header">
+                        <span class="public-request-from">Table ${request.tableNumber}</span>
+                        <span class="public-request-type">${requestTypes[request.requestType] || request.requestType}</span>
+                    </div>
+                    <div class="public-request-message">
+                        ${request.message}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <span style="font-size: 0.8rem; color: #666;">${timeAgo}</span>
+                        <div class="public-request-actions">
+                            <button class="btn-accept" onclick="acceptPublicRequest('${doc.id}')">
+                                Accept
+                            </button>
+                            <button class="btn-ignore" onclick="this.closest('.public-request-card').remove()">
+                                Ignore
+                            </button>
+                        </div>
+                    </div>
+                `;
+                requestsList.appendChild(requestElement);
+            });
+        }
 
-        function formatTimeAgo(date) {
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min ago`;
-    
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hr ago`;
-    
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} days ago`;
-}
         function getServiceTypeName(serviceType) {
             const names = {
                 waiter: 'Waiter Request',
@@ -1994,6 +2018,21 @@
             if (!timestamp) return '';
             const date = timestamp.toDate();
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hr ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays} days ago`;
         }
 
         // Modal Controls
@@ -2060,8 +2099,11 @@
                 enterAsClient();
             }
             
-            // Initialize QR scanner
-            initializeQRScanner();
+            // Small delay to ensure Html5Qrcode is loaded
+            setTimeout(() => {
+                // Initialize QR scanner
+                initializeQRScanner();
+            }, 500);
             
             // Load institution and theme settings
             loadInstitutionSettings();
