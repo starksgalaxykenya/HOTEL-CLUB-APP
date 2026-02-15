@@ -203,12 +203,6 @@
             font-size: 1.2rem;
         }
 
-        .waiter-order-card:hover,
-        .waiter-request-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-
         .waiter-order-card.pending {
             border-left-color: #ff9800;
         }
@@ -409,6 +403,30 @@
             font-weight: bold;
         }
 
+        .pin-prompt {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .pin-prompt i {
+            font-size: 4rem;
+            color: var(--primary-color, #2196F3);
+            margin-bottom: 1rem;
+        }
+
+        .pin-prompt h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .pin-input {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 10px;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
         /* Notifications */
         .notification {
             position: fixed;
@@ -531,9 +549,9 @@
     <div id="waiterLanding" class="waiter-landing">
         <div class="waiter-login">
             <h1><i class="fas fa-concierge-bell"></i> Waiter Login</h1>
-            <p>Enter your 4-digit ID to access dashboard</p>
+            <p>Enter your 4-digit PIN to access dashboard</p>
             <div class="form-group">
-                <input type="password" id="waiterId" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
+                <input type="password" id="waiterPin" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
             </div>
             <button class="btn btn-primary" onclick="loginAsWaiter()" style="width: 100%;">
                 <i class="fas fa-sign-in-alt"></i> Login
@@ -547,9 +565,9 @@
             <div class="header-left">
                 <h1><i class="fas fa-concierge-bell"></i> Waiter Dashboard</h1>
                 <div class="waiter-info">
-                    <span id="currentWaiterName">Waiter</span>
+                    <span id="currentWaiterName">Guest</span>
                     <span id="currentWaiterId"></span>
-                    <span class="order-status-badge active">Online</span>
+                    <span class="order-status-badge" id="waiterStatus">Not Logged In</span>
                 </div>
             </div>
             <div class="header-right">
@@ -566,7 +584,10 @@
         <main class="waiter-main">
             <nav class="waiter-tabs">
                 <button class="tab-btn active" onclick="showWaiterTab('orders')">
-                    <i class="fas fa-clipboard-list"></i> Orders
+                    <i class="fas fa-clipboard-list"></i> All Orders
+                </button>
+                <button class="tab-btn" onclick="showWaiterTab('myOrders')">
+                    <i class="fas fa-user-check"></i> My Orders (PIN Required)
                 </button>
                 <button class="tab-btn" onclick="showWaiterTab('requests')">
                     <i class="fas fa-bell"></i> Requests
@@ -574,14 +595,12 @@
                 <button class="tab-btn" onclick="showWaiterTab('tables')">
                     <i class="fas fa-chair"></i> Tables
                 </button>
-                <button class="tab-btn" onclick="showWaiterTab('myOrders')">
-                    <i class="fas fa-user-check"></i> My Orders
-                </button>
             </nav>
 
+            <!-- All Orders Tab - Always Visible -->
             <section id="ordersTab" class="waiter-tab active">
                 <div class="section-header">
-                    <h2>Available Orders</h2>
+                    <h2>All Orders</h2>
                     <select id="orderFilter" onchange="filterOrders()">
                         <option value="all">All Orders</option>
                         <option value="pending">Pending</option>
@@ -590,10 +609,31 @@
                     </select>
                 </div>
                 <div class="orders-grid" id="waiterOrdersGrid">
-                    <!-- Orders will be loaded here -->
+                    <!-- All orders will be loaded here - visible without PIN -->
                 </div>
             </section>
 
+            <!-- My Orders Tab - PIN Required -->
+            <section id="myOrdersTab" class="waiter-tab">
+                <div id="myOrdersPinPrompt" class="pin-prompt">
+                    <i class="fas fa-lock"></i>
+                    <h3>Enter Your PIN to View Your Orders</h3>
+                    <input type="password" id="myOrdersPin" class="pin-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
+                    <button class="btn btn-primary" onclick="verifyAndShowMyOrders()" style="margin-top: 1rem;">
+                        <i class="fas fa-unlock-alt"></i> Unlock My Orders
+                    </button>
+                </div>
+                <div id="myOrdersContent" style="display: none;">
+                    <div class="section-header">
+                        <h2>My Assigned Orders</h2>
+                    </div>
+                    <div class="orders-grid" id="myOrdersGrid">
+                        <!-- My orders will be loaded here after PIN verification -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Requests Tab -->
             <section id="requestsTab" class="waiter-tab">
                 <div class="section-header">
                     <h2>Service Requests</h2>
@@ -608,6 +648,7 @@
                 </div>
             </section>
 
+            <!-- Tables Tab -->
             <section id="tablesTab" class="waiter-tab">
                 <div class="section-header">
                     <h2>Table Status</h2>
@@ -616,16 +657,27 @@
                     <!-- Tables will be loaded here -->
                 </div>
             </section>
-
-            <section id="myOrdersTab" class="waiter-tab">
-                <div class="section-header">
-                    <h2>My Assigned Orders</h2>
-                </div>
-                <div class="orders-grid" id="myOrdersGrid">
-                    <!-- My orders will be loaded here -->
-                </div>
-            </section>
         </main>
+    </div>
+
+    <!-- PIN Prompt Modal -->
+    <div class="modal" id="pinPromptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-lock"></i> Enter Your PIN</h2>
+                <button class="close-modal" onclick="closePinPrompt()">&times;</button>
+            </div>
+            <div class="pin-prompt">
+                <i class="fas fa-user-tie" style="font-size: 4rem; color: var(--primary-color, #2196F3);"></i>
+                <h3>Please enter your 4-digit PIN to view order details</h3>
+                <input type="password" id="pinPromptInput" class="pin-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
+                <input type="hidden" id="pendingOrderId">
+                <input type="hidden" id="pendingAction">
+                <button class="btn btn-primary" onclick="verifyPinAndProceed()" style="margin-top: 1rem; width: 100%;">
+                    <i class="fas fa-check"></i> Verify & Continue
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Order Detail Modal -->
@@ -657,8 +709,8 @@
                         <input type="number" id="estimatedTime" min="1" max="120" value="15">
                     </div>
                     <div id="waiverIdSection" class="form-group">
-                        <label>Enter Your 4-digit ID to Claim Order</label>
-                        <input type="password" id="claimWaiterId" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
+                        <label>Enter Your 4-digit PIN to Claim Order</label>
+                        <input type="password" id="claimWaiterPin" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
                     </div>
                     <button class="btn btn-primary" onclick="claimAndUpdateOrder()" style="width: 100%;" id="claimUpdateButton">
                         <i class="fas fa-check"></i> Claim & Update Status
@@ -687,7 +739,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="waiterIdResponse">Your 4-digit ID</label>
+                    <label for="waiterIdResponse">Your 4-digit PIN</label>
                     <input type="password" id="waiterIdResponse" class="waiter-id-input" placeholder="****" maxlength="4" pattern="\d*" inputmode="numeric">
                 </div>
                 <div class="form-group">
@@ -773,19 +825,19 @@
 
         // Waiter Functions
         async function loginAsWaiter() {
-            const waiterId = document.getElementById('waiterId').value;
+            const waiterPin = document.getElementById('waiterPin').value;
             
-            if (!waiterId || waiterId.length !== 4) {
-                showNotification('Please enter a valid 4-digit ID', 'error');
+            if (!waiterPin || waiterPin.length !== 4) {
+                showNotification('Please enter a valid 4-digit PIN', 'error');
                 return;
             }
             
             try {
-                // Find staff with matching ID
-                const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+                // Find staff with matching PIN (using waiterId field as PIN)
+                const staffSnapshot = await staffRef.where('waiterId', '==', waiterPin).get();
                 
                 if (staffSnapshot.empty) {
-                    showNotification('Invalid waiter ID', 'error');
+                    showNotification('Invalid waiter PIN', 'error');
                     return;
                 }
                 
@@ -798,7 +850,10 @@
                 document.getElementById('waiterLanding').style.display = 'none';
                 document.getElementById('waiterPage').classList.add('active');
                 document.getElementById('currentWaiterName').textContent = currentWaiter.name;
-                document.getElementById('currentWaiterId').textContent = `(ID: ${currentWaiter.waiterId})`;
+                document.getElementById('currentWaiterId').textContent = `(PIN: ${currentWaiter.waiterId})`;
+                document.getElementById('waiterStatus').textContent = 'Logged In';
+                document.getElementById('waiterStatus').style.background = 'rgba(76, 175, 80, 0.1)';
+                document.getElementById('waiterStatus').style.color = '#4CAF50';
                 
                 initializeWaiterApp();
             } catch (error) {
@@ -811,48 +866,56 @@
             currentWaiter = null;
             document.getElementById('waiterPage').classList.remove('active');
             document.getElementById('waiterLanding').style.display = 'flex';
-            document.getElementById('waiterId').value = '';
+            document.getElementById('waiterPin').value = '';
+            document.getElementById('currentWaiterName').textContent = 'Guest';
+            document.getElementById('currentWaiterId').textContent = '';
+            document.getElementById('waiterStatus').textContent = 'Not Logged In';
+            document.getElementById('waiterStatus').style.background = 'rgba(244, 67, 54, 0.1)';
+            document.getElementById('waiterStatus').style.color = '#f44336';
+            
+            // Hide my orders content
+            document.getElementById('myOrdersPinPrompt').style.display = 'block';
+            document.getElementById('myOrdersContent').style.display = 'none';
         }
 
         function initializeWaiterApp() {
-            loadWaiterOrders();
+            loadAllOrders(); // Load all orders (visible without PIN)
             loadWaiterRequests();
             loadTables();
             loadStaffList();
-            loadMyOrders();
             loadInstitutionSettings();
             loadThemeSettings();
             setupWaiterRealtimeListeners();
         }
 
-        async function loadWaiterOrders() {
+        // Load all orders - always visible
+        async function loadAllOrders() {
             try {
                 const ordersSnapshot = await ordersRef
                     .where('status', 'in', ['pending', 'preparing', 'ready'])
                     .orderBy('createdAt', 'desc')
                     .get();
                 
-                renderWaiterOrders(ordersSnapshot.docs);
+                renderAllOrders(ordersSnapshot.docs);
             } catch (error) {
                 console.error('Error loading orders:', error);
             }
         }
 
-        function renderWaiterOrders(orderDocs) {
+        function renderAllOrders(orderDocs) {
             const ordersGrid = document.getElementById('waiterOrdersGrid');
             ordersGrid.innerHTML = '';
             
+            if (orderDocs.length === 0) {
+                ordersGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: #666;">No active orders</div>';
+                return;
+            }
+            
             orderDocs.forEach(doc => {
                 const order = doc.data();
-                
-                // Don't show locked orders that belong to other waiters
-                if (order.lockedTo && order.lockedTo !== currentWaiter?.waiterId) {
-                    return;
-                }
-                
                 const orderCard = document.createElement('div');
                 orderCard.className = `waiter-order-card ${order.status} ${order.lockedTo ? 'locked' : ''}`;
-                orderCard.onclick = () => openOrderDetail(doc.id, order);
+                orderCard.onclick = () => promptForPinBeforeOrderDetail(doc.id, order);
                 
                 const itemsPreview = order.items?.slice(0, 2).map(item => 
                     `${item.name} × ${item.quantity}`
@@ -888,6 +951,7 @@
             });
         }
 
+        // Load my orders - requires PIN
         async function loadMyOrders() {
             if (!currentWaiter) return;
             
@@ -942,6 +1006,107 @@
                 `;
                 ordersGrid.appendChild(orderCard);
             });
+        }
+
+        // PIN verification functions
+        function promptForPinBeforeOrderDetail(orderId, order) {
+            document.getElementById('pendingOrderId').value = orderId;
+            document.getElementById('pendingAction').value = 'viewOrder';
+            document.getElementById('pinPromptModal').classList.add('active');
+        }
+
+        function closePinPrompt() {
+            document.getElementById('pinPromptModal').classList.remove('active');
+            document.getElementById('pinPromptInput').value = '';
+            document.getElementById('pendingOrderId').value = '';
+            document.getElementById('pendingAction').value = '';
+        }
+
+        async function verifyPinAndProceed() {
+            const pin = document.getElementById('pinPromptInput').value;
+            const orderId = document.getElementById('pendingOrderId').value;
+            const action = document.getElementById('pendingAction').value;
+            
+            if (!pin || pin.length !== 4) {
+                showNotification('Please enter a valid 4-digit PIN', 'error');
+                return;
+            }
+            
+            try {
+                // Verify PIN
+                const staffSnapshot = await staffRef.where('waiterId', '==', pin).get();
+                
+                if (staffSnapshot.empty) {
+                    showNotification('Invalid PIN', 'error');
+                    return;
+                }
+                
+                const staffDoc = staffSnapshot.docs[0];
+                const waiter = staffDoc.data();
+                
+                // Set current waiter temporarily for this action
+                const tempWaiter = {
+                    id: staffDoc.id,
+                    ...waiter
+                };
+                
+                if (action === 'viewOrder') {
+                    const orderDoc = await ordersRef.doc(orderId).get();
+                    if (orderDoc.exists) {
+                        openOrderDetail(orderId, orderDoc.data(), tempWaiter);
+                    }
+                }
+                
+                closePinPrompt();
+                
+            } catch (error) {
+                console.error('Error verifying PIN:', error);
+                showNotification('Verification failed', 'error');
+            }
+        }
+
+        function verifyAndShowMyOrders() {
+            const pin = document.getElementById('myOrdersPin').value;
+            
+            if (!pin || pin.length !== 4) {
+                showNotification('Please enter a valid 4-digit PIN', 'error');
+                return;
+            }
+            
+            // Check if PIN matches current logged in waiter
+            if (currentWaiter && currentWaiter.waiterId === pin) {
+                // Already logged in, show my orders
+                document.getElementById('myOrdersPinPrompt').style.display = 'none';
+                document.getElementById('myOrdersContent').style.display = 'block';
+                loadMyOrders();
+            } else {
+                // Verify PIN
+                staffRef.where('waiterId', '==', pin).get().then(snapshot => {
+                    if (snapshot.empty) {
+                        showNotification('Invalid PIN', 'error');
+                        return;
+                    }
+                    
+                    const staffDoc = snapshot.docs[0];
+                    const waiter = staffDoc.data();
+                    
+                    // Temporarily set current waiter for my orders view
+                    currentWaiter = {
+                        id: staffDoc.id,
+                        ...waiter
+                    };
+                    
+                    document.getElementById('myOrdersPinPrompt').style.display = 'none';
+                    document.getElementById('myOrdersContent').style.display = 'block';
+                    loadMyOrders();
+                    
+                    showNotification(`Welcome, ${waiter.name}!`);
+                    
+                }).catch(error => {
+                    console.error('Error verifying PIN:', error);
+                    showNotification('Verification failed', 'error');
+                });
+            }
         }
 
         async function loadWaiterRequests() {
@@ -1061,7 +1226,7 @@
             }
         }
 
-        function openOrderDetail(orderId, order) {
+        function openOrderDetail(orderId, order, waiter = null) {
             currentOrderId = orderId;
             
             document.getElementById('modalTableNumber').textContent = order.tableNumber;
@@ -1071,13 +1236,18 @@
             // Show lock info
             const lockInfo = document.getElementById('orderLockInfo');
             if (order.lockedTo) {
-                lockInfo.innerHTML = `<i class="fas fa-lock"></i> This order is locked to Waiter ID: ${order.lockedTo} (${order.assignedWaiter || 'Unknown'})`;
+                lockInfo.innerHTML = `<i class="fas fa-lock"></i> This order is locked to Waiter PIN: ${order.lockedTo} (${order.assignedWaiter || 'Unknown'})`;
                 document.getElementById('waiverIdSection').style.display = 'none';
                 document.getElementById('claimUpdateButton').innerHTML = '<i class="fas fa-check"></i> Update Status';
             } else {
                 lockInfo.innerHTML = '<i class="fas fa-unlock"></i> This order is available to claim';
                 document.getElementById('waiverIdSection').style.display = 'block';
                 document.getElementById('claimUpdateButton').innerHTML = '<i class="fas fa-check"></i> Claim & Update Status';
+            }
+            
+            // If waiter is provided via PIN, auto-fill the PIN field
+            if (waiter) {
+                document.getElementById('claimWaiterPin').value = waiter.waiterId;
             }
             
             const orderItems = document.getElementById('modalOrderItems');
@@ -1115,20 +1285,20 @@
                 const orderDoc = await ordersRef.doc(currentOrderId).get();
                 const order = orderDoc.data();
                 
-                // If order is not locked, verify waiter ID
+                // If order is not locked, verify waiter PIN
                 if (!order.lockedTo) {
-                    const waiterId = document.getElementById('claimWaiterId').value;
+                    const waiterPin = document.getElementById('claimWaiterPin').value;
                     
-                    if (!waiterId || waiterId.length !== 4) {
-                        showNotification('Please enter your 4-digit ID to claim this order', 'error');
+                    if (!waiterPin || waiterPin.length !== 4) {
+                        showNotification('Please enter your 4-digit PIN to claim this order', 'error');
                         return;
                     }
                     
-                    // Verify waiter ID
-                    const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+                    // Verify waiter PIN
+                    const staffSnapshot = await staffRef.where('waiterId', '==', waiterPin).get();
                     
                     if (staffSnapshot.empty) {
-                        showNotification('Invalid waiter ID', 'error');
+                        showNotification('Invalid waiter PIN', 'error');
                         return;
                     }
                     
@@ -1139,7 +1309,7 @@
                     await ordersRef.doc(currentOrderId).update({
                         status: newStatus,
                         estimatedTime: parseInt(estimatedTime),
-                        lockedTo: waiterId,
+                        lockedTo: waiterPin,
                         assignedWaiter: waiterName,
                         claimedAt: firebase.firestore.FieldValue.serverTimestamp(),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1148,7 +1318,8 @@
                     showNotification(`Order claimed by ${waiterName}!`);
                 } else {
                     // If locked, check if current waiter owns it
-                    if (order.lockedTo !== currentWaiter?.waiterId) {
+                    const enteredPin = document.getElementById('claimWaiterPin').value;
+                    if (order.lockedTo !== enteredPin) {
                         showNotification('This order is locked to another waiter', 'error');
                         return;
                     }
@@ -1163,8 +1334,10 @@
                 }
                 
                 closeOrderModal();
-                loadWaiterOrders();
-                loadMyOrders();
+                loadAllOrders();
+                if (currentWaiter) {
+                    loadMyOrders();
+                }
             } catch (error) {
                 console.error('Error updating order:', error);
                 showNotification('Failed to update order', 'error');
@@ -1207,7 +1380,7 @@
 
         async function acceptRequest() {
             const waiterName = document.getElementById('waiterNameSelect').value;
-            const waiterId = document.getElementById('waiterIdResponse').value;
+            const waiterPin = document.getElementById('waiterIdResponse').value;
             const response = document.getElementById('waiterResponse').value;
             
             if (!waiterName) {
@@ -1215,16 +1388,16 @@
                 return;
             }
             
-            if (!waiterId || waiterId.length !== 4) {
-                showNotification('Please enter your 4-digit ID', 'error');
+            if (!waiterPin || waiterPin.length !== 4) {
+                showNotification('Please enter your 4-digit PIN', 'error');
                 return;
             }
             
-            // Verify waiter ID
-            const staffSnapshot = await staffRef.where('waiterId', '==', waiterId).get();
+            // Verify waiter PIN
+            const staffSnapshot = await staffRef.where('waiterId', '==', waiterPin).get();
             
             if (staffSnapshot.empty) {
-                showNotification('Invalid waiter ID', 'error');
+                showNotification('Invalid waiter PIN', 'error');
                 return;
             }
             
@@ -1232,7 +1405,7 @@
                 await requestsRef.doc(currentRequestId).update({
                     status: 'in_progress',
                     assignedTo: waiterName,
-                    assignedId: waiterId,
+                    assignedId: waiterPin,
                     waiterResponse: response || 'Waiter is on the way',
                     assignedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -1262,7 +1435,7 @@
 
         function closeOrderModal() {
             document.getElementById('orderDetailModal').classList.remove('active');
-            document.getElementById('claimWaiterId').value = '';
+            document.getElementById('claimWaiterPin').value = '';
         }
 
         function closeRequestModal() {
@@ -1282,19 +1455,16 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            
-            // Load tab-specific data
-            if (tabId === 'myOrders') {
-                loadMyOrders();
-            }
         }
 
         function setupWaiterRealtimeListeners() {
             ordersRef
                 .where('status', 'in', ['pending', 'preparing', 'ready'])
                 .onSnapshot(snapshot => {
-                    loadWaiterOrders();
-                    loadMyOrders();
+                    loadAllOrders();
+                    if (currentWaiter) {
+                        loadMyOrders();
+                    }
                     loadTables();
                 });
             
